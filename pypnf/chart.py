@@ -573,10 +573,10 @@ class PointFigureChart:
 
         while uTF == 0 and dTF == 0 and k <= np.size(H) - 1:
             if H[k] >= Boxes[iBu + 1]:
-                uTF = 1
+                uTF = BULLISH
             else:
                 if L[k] <= Boxes[iBd - 1]:
-                    dTF = -1
+                    dTF = BEARISH
             k += 1
 
         # first trend is up
@@ -616,7 +616,7 @@ class PointFigureChart:
         iBp = iB  # Box index from previous iteration
         fBp = fB  # number of filled Boxes from previous iteration
 
-        if TF == 1:
+        if TF == BULLISH:
 
             # check if there is a further 'X' in the trend
             if P >= Boxes[iB + 1]:
@@ -638,7 +638,7 @@ class PointFigureChart:
                 # set Box index to the bottom box
                 iB = np.where(Boxes >= P)[0][0]
 
-                TF = -1  # trend becomes negative
+                TF = BEARISH  # trend becomes negative
                 iC = iC + 1  # go to next column
                 fB = iBp - iB  # calculate number of filled Boxes
 
@@ -647,7 +647,7 @@ class PointFigureChart:
                     iC = iC - 1  # set column to previous column
                     fB = fB + 1  # calculate number of filled Boxes
 
-        elif TF == -1:
+        elif TF == BEARISH:
 
             # the Box index can not be zero
             if iB - 1 < 1:
@@ -669,7 +669,7 @@ class PointFigureChart:
                 # set Box index to the top box
                 iB = np.where(Boxes <= P)[0][-1]
 
-                TF = 1  # trend becomes positive
+                TF = BULLISH  # trend becomes positive
                 iC = iC + 1  # go to next column
                 fB = iB - iBp  # calculate number of filled Boxes
 
@@ -727,7 +727,7 @@ class PointFigureChart:
             iBp = iB  # Box index from previous iteration
             fBp = fB  # number of filled Boxes from previous iteration
 
-            if TF == 1:
+            if TF == BULLISH:
 
                 # check if there is a further 'X' in the trend
                 if H[n] >= Boxes[iB + 1]:
@@ -741,7 +741,7 @@ class PointFigureChart:
 
                     # check low for reversal
                     if L[n] <= Boxes[iB - reversal]:
-                        TF = -1
+                        TF = BEARISH
                         [Box, iB, iC, TF, _] = self._basic(L[n], iB, iC, TF, fB)
                         iC = iC + 1  # go to next column
                         fB = iBp - iB  # calculate number of filled Boxes
@@ -753,7 +753,7 @@ class PointFigureChart:
 
                 ts[n, :] = [Box, iB, iC, TF, fB]
 
-            elif TF == -1:
+            elif TF == BEARISH:
 
                 # the Box index can not be zero
                 if iB - 1 < 1:
@@ -767,7 +767,7 @@ class PointFigureChart:
 
                     # check high for reversal
                     if H[n] >= Boxes[iB + reversal]:
-                        TF = 1
+                        TF = BULLISH
                         [Box, iB, iC, TF, _] = self._basic(H[n], iB, iC, TF, fB)
                         iC = iC + 1  # go to next column
                         fB = iB - iBp  # calculate number of filled Boxes
@@ -803,7 +803,7 @@ class PointFigureChart:
             iBp = iB  # Box index from previous iteration
             fBp = fB  # number of filled Boxes from previous iteration
 
-            if TF == 1:
+            if TF == BULLISH:
 
                 # the Box index can not be zero
                 if iB - reversal < 1:
@@ -811,7 +811,7 @@ class PointFigureChart:
 
                 # check for reversal
                 if L[n] <= Boxes[iB - reversal]:
-                    TF = -1
+                    TF = BEARISH
                     [Box, iB, iC, TF, _] = self._basic(L[n], iB, iC, TF, fB)
                     iC = iC + 1  # go to next column
                     fB = iBp - iB  # calculate number of filled Boxes
@@ -826,11 +826,11 @@ class PointFigureChart:
                     if H[n] >= Boxes[iB + 1]:
                         [Box, iB, iC, TF, fB] = self._basic(H[n], iB, iC, TF, fB)
 
-            elif TF == -1:
+            elif TF == BEARISH:
 
                 # check for reversal
                 if H[n] >= Boxes[iB + reversal]:
-                    TF = 1
+                    TF = BULLISH
                     [Box, iB, iC, TF, _] = self._basic(H[n], iB, iC, TF, fB)
                     iC = iC + 1  # go to next column
                     fB = iB - iBp  # calculate number of filled Boxes
@@ -878,7 +878,7 @@ class PointFigureChart:
             fBp = fB  # number of filled Boxes from previous iteration
 
             # trend is up
-            if TF == 1:
+            if TF == BULLISH:
 
                 # check if there is a further 'X' in the trend
                 if C[n] >= Boxes[iB + 1]:
@@ -892,7 +892,7 @@ class PointFigureChart:
 
                     # check for reversal
                     if C[n] <= Boxes[iB - reversal]:
-                        TF = -1
+                        TF = BEARISH
                         [Box, iB, iC, TF, _] = self._basic(L[n], iB, iC, TF, fB)
                         iC = iC + 1  # go to next column
                         fB = iBp - iB  # calculate number of filled Boxes
@@ -904,7 +904,7 @@ class PointFigureChart:
                 ts[n, :] = [Box, iB, iC, TF, fB]
 
             # trend is down
-            elif TF == -1:
+            elif TF == BEARISH:
 
                 # the Box index can not be zero
                 if iB - 1 < 1:
@@ -918,7 +918,7 @@ class PointFigureChart:
 
                     # check close for reversal
                     if C[n] >= Boxes[iB + reversal]:
-                        TF = 1
+                        TF = BULLISH
                         [Box, iB, iC, TF, _] = self._basic(H[n], iB, iC, TF, fB)
                         iC = iC + 1  # go to next column
                         fB = iB - iBp  # calculate number of filled Boxes
@@ -1119,33 +1119,33 @@ class PointFigureChart:
         self.action_index_matrix = np.zeros([np.size(boxes), iC[-1] + 1], dtype=int)
 
         # mark first box
-        if TF[0] == 1:
-            mtx[iB[0], 0] = 1
+        if TF[0] == BULLISH:
+            mtx[iB[0], 0] = BULLISH
             self.action_index_matrix[iB[0], 0] = iTS[0]
-        elif TF[0] == -1:
-            mtx[iB[1], 0] = -1
+        elif TF[0] == BEARISH:
+            mtx[iB[1], 0] = BEARISH
             self.action_index_matrix[iB[0], 0] = iTS[0]
 
         # mark the other boxes
         for n in range(1, np.size(iB)):
 
             # positive trend goes on
-            if TF[n - 1] == 1 and TF[n] == 1:
+            if TF[n - 1] == BULLISH and TF[n] == BULLISH:
                 mtx[iB[n - 1]:iB[n] + 1, iC[n]] = TF[n]
                 self.action_index_matrix[iB[n - 1]:iB[n] + 1, iC[n]] = iTS[n]
 
             # positive trend reverses
-            elif TF[n - 1] == 1 and TF[n] == -1:
+            elif TF[n - 1] == BULLISH and TF[n] == BEARISH:
                 mtx[iB[n]:iB[n - 1], iC[n]] = TF[n]
                 self.action_index_matrix[iB[n]:iB[n - 1], iC[n]] = iTS[n]
 
             # negative trend goes on
-            elif TF[n - 1] == -1 and TF[n] == -1:
+            elif TF[n - 1] == BEARISH and TF[n] == BEARISH:
                 mtx[iB[n]:iB[n - 1] + 1, iC[n]] = TF[n]
                 self.action_index_matrix[iB[n]:iB[n - 1] + 1, iC[n]] = iTS[n]
 
             # negative trend reverses
-            elif TF[n - 1] == -1 and TF[n] == 1:
+            elif TF[n - 1] == BEARISH and TF[n] == BaseException:
                 mtx[iB[n - 1] + 1:iB[n] + 1, iC[n]] = TF[n]
                 self.action_index_matrix[iB[n - 1] + 1:iB[n] + 1, iC[n]] = iTS[n]
 
@@ -1189,14 +1189,14 @@ class PointFigureChart:
         T[(T < 1) | (mtx < 1)] = 0
 
         # row and col index of potential breakouts
-        row_bull, col_bull = np.where(T == 1)
+        row_bull, col_bull = np.where(T == BULLISH)
 
         # find potential bearish breakouts
         T = np.concatenate((a, b), axis=1)
         T[(T < -1) | (mtx > -1)] = 0
 
         # row and col index of potential breakouts
-        row_bear, col_bear = np.where(T == -1)
+        row_bear, col_bear = np.where(T == BEARISH)
 
         # initiate dictionary
         keys = ['ts index','trend', 'type', 'column index', 'box index', 'hits', 'width', 'outer width']
@@ -1213,8 +1213,8 @@ class PointFigureChart:
             bo['ts index'] = bo['ts index'].astype(int)
 
         # assign trends
-        bo['trend'][0:np.size(row_bull)] = 1
-        bo['trend'][np.size(row_bull):np.size(row_bull) + np.size(row_bear)] = -1
+        bo['trend'][0:np.size(row_bull)] = BULLISH
+        bo['trend'][np.size(row_bull):np.size(row_bull) + np.size(row_bear)] = BEARISH
 
         # bullish breakouts
         if np.any(row_bull):
@@ -1228,13 +1228,13 @@ class PointFigureChart:
                 hRL = mtx[row_bull[n] - 1, 0:col_bull[n] + 1]  # horizontal resistance line
                 boL = mtx[row_bull[n], 0:col_bull[n] + 1]  # breakout line
 
-                if np.any(np.where(hRL == -1)):
-                    i = np.where(hRL == -1)[0][-1]
+                if np.any(np.where(hRL == BEARISH)):
+                    i = np.where(hRL == BEARISH)[0][-1]
                 else:
                     i = -1
 
-                if np.any(np.where(hRL == 1)):
-                    k = np.where(hRL == 1)[0]
+                if np.any(np.where(hRL == BULLISH)):
+                    k = np.where(hRL == BULLISH)[0]
                 else:
                     k = 0
 
@@ -1252,22 +1252,22 @@ class PointFigureChart:
 
                 if z >= 1:
 
-                    if mtx[row_bull[n], z - 1] == 0 and mtx[row_bull[n], z] == 1:
+                    if mtx[row_bull[n], z - 1] == 0 and mtx[row_bull[n], z] == BULLISH:
                         bo['type'][n] = 'resistance'
 
-                    elif mtx[row_bull[n], z - 1] == 1 and mtx[row_bull[n], z] == 1:
+                    elif mtx[row_bull[n], z - 1] == BULLISH and mtx[row_bull[n], z] == BULLISH:
                         bo['type'][n] = 'resistance'
 
-                    elif mtx[row_bull[n], z - 1] == -1 and mtx[row_bull[n], z] == -1:
+                    elif mtx[row_bull[n], z - 1] == BEARISH and mtx[row_bull[n], z] == BEARISH:
                         bo['type'][n] = 'fulcrum'
 
-                    elif mtx[row_bull[n], z - 1] == -1 and mtx[row_bull[n], z] == 1:
+                    elif mtx[row_bull[n], z - 1] == BEARISH and mtx[row_bull[n], z] == BULLISH:
                         bo['type'][n] = 'reversal'
 
-                    elif mtx[row_bull[n], z - 1] == 0 and mtx[row_bull[n], z] == -1:
+                    elif mtx[row_bull[n], z - 1] == 0 and mtx[row_bull[n], z] == BEARISH:
                         bo['type'][n] = 'reversal'
 
-                    elif mtx[row_bull[n], z - 1] == 1 and mtx[row_bull[n], z] == -1:
+                    elif mtx[row_bull[n], z - 1] == BULLISH and mtx[row_bull[n], z] == BEARISH:
                         bo['type'][n] = 'reversal'
 
                     elif mtx[row_bull[n], z - 1] == 0 and mtx[row_bull[n], z] == 0:
@@ -1278,10 +1278,10 @@ class PointFigureChart:
                     if mtx[row_bull[n], z] == 0:
                         bo['type'][n] = 'conti'
 
-                    elif mtx[row_bull[n], z] == 1:
+                    elif mtx[row_bull[n], z] == BULLISH:
                         bo['type'][n] = 'conti'
 
-                    elif mtx[row_bull[n], z] == -1:
+                    elif mtx[row_bull[n], z] == BEARISH:
                         bo['type'][n] = 'reversal'
 
                 if np.size(k) >= 2:
@@ -1313,14 +1313,14 @@ class PointFigureChart:
                 hRL = mtx[row_bear[n] + 1, 0:col_bear[n] + 1]  # horizontal resistance line
                 boL = mtx[row_bear[n], 0:col_bear[n] + 1]  # breakout line
 
-                if np.any(np.where(hRL == 1)):
-                    i = np.where(hRL == 1)[0][-1]
+                if np.any(np.where(hRL == BULLISH)):
+                    i = np.where(hRL == BULLISH)[0][-1]
 
                 else:
                     i = -1
 
-                if np.any(np.where(hRL == -1)):
-                    k = np.where(hRL == -1)[0]
+                if np.any(np.where(hRL == BEARISH)):
+                    k = np.where(hRL == BEARISH)[0]
 
                 else:
                     k = 0
@@ -1339,22 +1339,22 @@ class PointFigureChart:
 
                 if z >= 1:
 
-                    if mtx[row_bear[n], z - 1] == 0 and mtx[row_bear[n], z] == -1:
+                    if mtx[row_bear[n], z - 1] == 0 and mtx[row_bear[n], z] == BEARISH:
                         bo['type'][np.size(row_bull) + n] = 'resistance'
 
-                    elif mtx[row_bear[n], z - 1] == -1 and mtx[row_bear[n], z] == -1:
+                    elif mtx[row_bear[n], z - 1] == BEARISH and mtx[row_bear[n], z] == BEARISH:
                         bo['type'][np.size(row_bull) + n] = 'resistance'
 
-                    elif mtx[row_bear[n], z - 1] == 1 and mtx[row_bear[n], z] == 1:
+                    elif mtx[row_bear[n], z - 1] == BULLISH and mtx[row_bear[n], z] == BULLISH:
                         bo['type'][np.size(row_bull) + n] = 'reversal'
 
-                    elif mtx[row_bear[n], z - 1] == 1 and mtx[row_bear[n], z] == -1:
+                    elif mtx[row_bear[n], z - 1] == BULLISH and mtx[row_bear[n], z] == BEARISH:
                         bo['type'][np.size(row_bull) + n] = 'reversal'
 
-                    elif mtx[row_bear[n], z - 1] == 0 and mtx[row_bear[n], z] == 1:
+                    elif mtx[row_bear[n], z - 1] == 0 and mtx[row_bear[n], z] == BULLISH:
                         bo['type'][np.size(row_bull) + n] = 'reversal'
 
-                    elif mtx[row_bear[n], z - 1] == -1 and mtx[row_bear[n], z] == 1:
+                    elif mtx[row_bear[n], z - 1] == BEARISH and mtx[row_bear[n], z] == BULLISH:
                         bo['type'][np.size(row_bull) + n] = 'reversal'
 
                     elif mtx[row_bear[n], z - 1] == 0 and mtx[row_bear[n], z] == 0:
@@ -1364,9 +1364,9 @@ class PointFigureChart:
 
                     if mtx[row_bear[n], z] == 0:
                         bo['type'][np.size(row_bull) + n] = 'conti'
-                    elif mtx[row_bear[n], z] == -1:
+                    elif mtx[row_bear[n], z] == BEARISH:
                         bo['type'][np.size(row_bull) + n] = 'conti'
-                    elif mtx[row_bear[n], z] == 1:
+                    elif mtx[row_bear[n], z] == BULLISH:
                         bo['type'][np.size(row_bull) + n] = 'reversal'
 
                 if np.size(k) >= 2:
@@ -1514,13 +1514,13 @@ class PointFigureChart:
             else:
                 bo = self.breakouts
 
-            col = bo['column index'][bo['trend'] == 1]
-            row = bo['box index'][bo['trend'] == 1] + offset
-            brkpt[row, col] = 1
+            col = bo['column index'][bo['trend'] == BULLISH]
+            row = bo['box index'][bo['trend'] == BULLISH] + offset
+            brkpt[row, col] = BULLISH
 
-            col = bo['column index'][bo['trend'] == -1]
-            row = bo['box index'][bo['trend'] == -1] + offset
-            brkpt[row, col] = -1
+            col = bo['column index'][bo['trend'] == BEARISH]
+            row = bo['box index'][bo['trend'] == BEARISH] + offset
+            brkpt[row, col] = BEARISH
 
             # fill tl_mtx with the length of the trendline at the position of
             # the starting point
@@ -1622,7 +1622,7 @@ class PointFigureChart:
             # remove possible trendlines which are touching occupied boxes within
             # the current interval (necessary for "weak" mode - no impact on strong
             # mode)
-            if tF == 1:
+            if tF == BULLISH:
 
                 for x in range(0, np.size(v_down)):
 
@@ -1636,7 +1636,7 @@ class PointFigureChart:
                         if np.any(check * z):
                             v_down[x] = 0
 
-            elif tF == -1:
+            elif tF == BEARISH:
 
                 for x in range(0, np.size(v_up)):
 
@@ -1651,7 +1651,7 @@ class PointFigureChart:
                         if np.any(check * z):
                             v_up[x] = 0
 
-            if tF == 1:
+            if tF == BULLISH:
 
                 # direction of current trendline is up
                 # create array containing the position(index+1) of elements of v_down
@@ -1688,7 +1688,7 @@ class PointFigureChart:
                     tF = np.sign(np.sum(tl_mtx[:, col]))
                     tl_vec[col] = span * tF
 
-            elif tF == -1:
+            elif tF == BEARISH:
 
                 # direction of current trendline is down
                 # create array containing the position(index+1) of elements of v_down
@@ -2084,15 +2084,15 @@ class PointFigureChart:
             mtx = self.matrix.copy()
             mtx = mtx[:, -3:]
 
-            x_col_1 = np.where(mtx[:, 0] == 1)[0]
-            x_col_2 = np.where(mtx[:, 1] == 1)[0]
-            x_col_3 = np.where(mtx[:, 2] == 1)[0]
+            x_col_1 = np.where(mtx[:, 0] == BULLISH)[0]
+            x_col_2 = np.where(mtx[:, 1] == BULLISH)[0]
+            x_col_3 = np.where(mtx[:, 2] == BULLISH)[0]
 
-            o_col_1 = np.where(mtx[:, 0] == -1)[0]
-            o_col_2 = np.where(mtx[:, 1] == -1)[0]
-            o_col_3 = np.where(mtx[:, 2] == -1)[0]
+            o_col_1 = np.where(mtx[:, 0] == BEARISH)[0]
+            o_col_2 = np.where(mtx[:, 1] == BEARISH)[0]
+            o_col_3 = np.where(mtx[:, 2] == BEARISH)[0]
 
-            if last_trend == 1:
+            if last_trend == BULLISH:
 
                 if np.any(x_col_2):
                     idx = x_col_2[-1]
@@ -2112,7 +2112,7 @@ class PointFigureChart:
 
                 next_sell = self.boxscale[idx - 1]
 
-            elif last_trend == -1:
+            elif last_trend == BEARISH:
 
                 if np.any(o_col_2):
                     idx = o_col_2[0]
@@ -2144,7 +2144,7 @@ class PointFigureChart:
         array = np.zeros(len(self.pnf_timeseries['box index']))
         array[:] = np.nan
 
-        x = ((self.breakouts['trend'] == 1)
+        x = ((self.breakouts['trend'] == BULLISH)
              & (self.breakouts['width'] <= max_width)
              & (self.breakouts['hits'] == multiple))
 
@@ -2167,7 +2167,7 @@ class PointFigureChart:
         array = np.zeros(len(self.pnf_timeseries['box index']))
         array[:] = np.nan
 
-        x = ((self.breakouts['trend'] == -1)
+        x = ((self.breakouts['trend'] == BEARISH)
              & (self.breakouts['width'] <= max_width)
              & (self.breakouts['hits'] == multiple))
 
@@ -2349,7 +2349,7 @@ class PointFigureChart:
                 
                 C = mtx[min_IDX:boxindex,colindex-width+1:colindex+1].copy()
                 
-                perc_filled = PointFigureChart.count_percent_filled(C, width)
+                perc_filled = self.count_percent_filled(C, width)
                         
                 TargetIdx = min_IDX + (width * self.reversal) + Extension_Down          
 
@@ -2712,7 +2712,614 @@ class PointFigureChart:
         counts = temp_counts 
         
         return counts
-    
+
+
+    def relative_tops(self, mtx):
+        rel_top = np.zeros(np.size(mtx,1))
+        for col in range(1, np.size(mtx,1)):    
+            prev_top = np.where(np.abs(mtx[:,col-1]) != 0)[0][-1]
+            top = np.where(np.abs(mtx[:,col]) != 0)[0][-1]
+            rel_top[col] = top - prev_top    
+        return rel_top    
+            
+    def relative_bottoms(self, mtx):
+        rel_bot = np.zeros(np.size(mtx,1))
+        for col in range(1, np.size(mtx,1)):    
+            prev_bot = np.where(np.abs(mtx[:,col-1]) != 0)[0][0]
+            bot = np.where(np.abs(mtx[:,col]) != 0)[0][0]
+            rel_bot[col] = bot - prev_bot 
+        return rel_bot
+
+
+    def simple_signals(self, mtx):
+        '''
+        returns simple breakout signals
+        '''
+        if not self.breakouts:
+            self.get_breakouts()
+
+        bo = self.breakouts
+        
+        spreading = np.zeros(np.size(bo['column index'])).astype(int)
+        trending  = np.zeros(np.size(bo['column index'])).astype(int)
+        value     = np.zeros(np.size(bo['column index'])).astype(int)
+        traps     = np.zeros(np.size(bo['column index'])).astype(int)
+        signals = np.zeros((np.size(mtx,0),np.size(mtx,1))).astype(int)
+        ratings = np.zeros((np.size(mtx,0),np.size(mtx,1))).astype(int)
+        
+        for n in range(np.size(bo['column index'])):
+            
+            row = bo['row index'][n]    
+            col = bo['column index'][n]
+            width = bo['width'][n]
+            hits = bo['hits'][n]
+            spread_factor = 0.5*width + 0.5 - hits
+            if col - width > 0:
+                    s = col - width
+            else: s = 1
+            
+            if np.sum(signals[:,col-1]) > 0 and bo['column index'][n] != bo['column index'][n-1]:
+                traps[n] = 1
+        
+            if bo['trend'][n] == BULLISH:
+                
+                bottoms = self.relative_bottoms(mtx[:,s:col+1])
+                sum_bottoms = np.sum(bottoms)
+        
+                if sum_bottoms >= np.size(bottoms)/2 and sum_bottoms <= np.size(bottoms):
+                    trend_factor = bo['hits'][n] - 1
+                    trending[n] = 1
+                    if spread_factor > 0:
+                        spreading[n] = spread_factor
+                else:
+                    trend_factor = 0
+                    if spread_factor > 0:
+                        spreading[n] = spread_factor
+                                
+            elif bo['trend'][n] == BEARISH:
+        
+                tops = self.relative_tops(mtx[:,s:col+1])
+                sum_tops = np.sum(tops)
+                if sum_tops <= -np.size(tops)/2 and sum_tops >= -np.size(tops):
+                    trend_factor = bo['hits'][n] - 1
+                    trending[n] = 1
+                    if spread_factor > 0:
+                        spreading[n] = spread_factor
+                else:
+                    trend_factor = 0
+                    if spread_factor > 0:
+                        spreading[n] = spread_factor
+                    
+            rating = int(bo['hits'][n] + trend_factor - spread_factor)
+            value[n] = rating
+            if rating > 0 and rating >= ratings[row, col]:
+                if signals[row, col] < bo['hits'][n]: 
+                    ratings[row, col] = rating
+                    signals[row, col] = bo['hits'][n] 
+        
+        rows = np.array([]) 
+        cols = np.array([]) 
+        trends = np.array([])
+        pattern = np.array([])  
+        spreaded = np.array([])
+        hits = np.array([]) 
+        sloping = np.array([])
+        
+        labels = np.array([],dtype=object)
+        
+        for n in range(np.size(bo['column index'])):
+            row = bo['row index'][n]
+            col = bo['column index'][n]
+            
+            if value[n] > 0 and value[n] == ratings[row, col]:
+                if signals[row, col] == bo['hits'][n]:
+                    rows = np.append(rows,row)
+                    cols = np.append(cols,col)
+                    trends = np.append(trends,bo['trend'][n])
+                    pattern = np.append(pattern,bo['pattern'][n])
+                    hits = np.append(hits,bo['hits'][n])
+                    if spreading[n] > 0:
+                        spreaded = np.append(spreaded,spreading[n])
+                    else: spreaded = np.append(spreaded,0)     
+                    if trending[n] > 0:
+                        sloping = np.append(sloping,trending[n])  
+                    else: sloping = np.append(sloping,0)  
+                    
+                    if bo['trend'][n] == BULLISH:
+                        sig = 'B-'
+                    else: sig = 'S-'
+                    
+                    label = sig + bo['pattern'][n][0:3] + '('+str(bo['hits'][n])+')'  + 's(' + str(spreading[n]) +')'
+                    if trending[n] == 1:
+                        label = label + 's'                
+                    if traps[n] == 1:
+                        label = label + 't'
+                    
+                    labels = np.append(labels,label)
+        
+        signals = { 'label': labels,
+                    'row index': rows.astype(int),
+                    'column index': cols.astype(int),
+                    'trend': trends,
+                    'pattern': pattern,
+                    'spread factor':spreaded.astype(int),
+                    'hits': hits.astype(int),
+                    'sloping': sloping.astype(int),
+                    }
+        
+        return signals
+
+    #%% poles
+
+    def poles(self, mtx):
+
+        # number of boxes filled above/below outbreak (including outbreak box)
+        cutoff = 5
+        # cutoff value for long tails. SIgnal will be classified not as pole anymore
+        longpole_cutoff = 20
+        longpole_retracement = 3
+        if not self.breakouts:
+            self.get_breakouts()
+        
+        bo = self.breakouts
+        # initiate output variable as dict
+        keys = ['label','pattern','activation row','activation column','pole column height','pole outbreak height','retracement']
+        poles = {}
+        for key in keys:
+            poles[key] = np.zeros(np.size(bo['column index'])).astype(int)
+        poles['pattern'] = poles['pattern'].astype(object)   
+        poles['label'] = poles['label'].astype(object)  
+        idx = 0
+        
+        #%% low poles
+        A = np.zeros((np.size(mtx,0),np.size(mtx,1)))
+        B = np.zeros((np.size(mtx,0),np.size(mtx,1)))
+        
+        A[:,1:] = mtx[:,:-1] - mtx[:,1:]
+        B[:,:np.size(mtx[:,:-1],1)] = mtx[:,:-1]
+        
+        T = np.zeros((np.size(A,0),np.size(A,1)))
+        
+        T[(A == 1) & (B < 0)] = B[(A == 1) & (B < 0)]
+        
+        # variable to check for signals
+        sigcheck = np.zeros(np.size(A,1))
+        
+        
+        for n in range(np.size(bo['column index'])):
+            if bo['trend'][n] == BEARISH and bo['column index'][n] < np.size(mtx,1)-1:
+                # take the lowest signal with highes index if more than one signal in a column
+                x = np.where(bo['column index'] == bo['column index'][n])[0][-1]
+                # set all boxes which are not part of outbreak to zero
+                if not bo['row index'][x] > bo['row index'][n]:
+                    T[bo['row index'][n]:,bo['column index'][n]] = 0    
+        
+                sigcheck[bo['column index'][n]] = 1
+                
+        # if there is no signal in column set value in T to zero.
+        T[:,(sigcheck == 0)] = 0                       
+        
+        # C contains the heights of the outbreak for all poles
+        C = np.abs(np.sum(T,0)) 
+        
+        # D will contain long tails
+        D = C.copy()
+        
+        # remove poles smaller than cutoof and long tails
+        C[(C < cutoff) | (C >= longpole_cutoff)] = 0
+        
+        # remain the long tails
+        D[D < longpole_cutoff] = 0
+        
+        x = np.where(C > 0)[0]
+        if np.any(x):
+            for col in x:
+                # rev contains number of boxes to reverse until a pole will be activated
+                rev = np.ceil(np.sum(np.abs(mtx[:,col]))/2)
+                # row contains index of box where the pole is activated    
+                row = np.where(mtx[:,col] == -1)[0][0] + rev
+                row = row.astype(int)
+            
+                if mtx[row,col+1] == 1:
+                    poles['pattern'][idx] = 'low pole'
+                    poles['activation row'][idx] = row
+                    poles['activation column'][idx] = col+1
+                    poles['pole column height'][idx] = np.sum(np.abs(mtx[:,col])).astype(int)
+                    poles['pole outbreak height'][idx] = C[col].astype(int)
+                    poles['retracement'][idx] = rev.astype(int)
+                    label = 'B-lp('+ str(poles['pole column height'][idx]) +')o('+str(poles['pole outbreak height'][idx])+')r('+str(poles['retracement'][idx])+')'
+                    poles['label'][idx] = label
+                    idx += 1
+        
+        #%% long tail down / long low pole
+        x = np.where(D > 0)[0]
+        if np.any(x):
+            for col in x:
+                # row contains index of box where the long tail buy is activated    
+                row = np.where(mtx[:,col] == -1)[0][0] + longpole_retracement
+                row = row.astype(int)
+                if mtx[row,col+1] == 1:
+                    poles['pattern'][idx] = 'long low pole'
+                    poles['activation row'][idx] = row
+                    poles['activation column'][idx] = col+1
+                    poles['pole column height'][idx] = np.sum(np.abs(mtx[:,col])).astype(int)
+                    poles['pole outbreak height'][idx] = D[col].astype(int)
+                    poles['retracement'][idx] = longpole_retracement
+                    label = 'B-llp('+ str(poles['pole column height'][idx]) +')o('+ str(D[col].astype(int)) +')r('+str(longpole_retracement)+')'
+                    poles['label'][idx] = label
+                    idx += 1
+                    
+        #%% high polse
+        
+        A = np.zeros((np.size(mtx,0),np.size(mtx,1)))
+        B = np.zeros((np.size(mtx,0),np.size(mtx,1)))
+        
+        A[:,1:] = mtx[:,1:] - mtx[:,:-1] 
+        B[:,:np.size(mtx[:,:-1],1)] = mtx[:,:-1]
+            
+        T = np.zeros((np.size(A,0),np.size(A,1)))
+        T[(A == 1) & (B > 0)] = B[(A == 1) & (B > 0)]
+        
+        sigcheck = np.zeros(np.size(T,1))
+        
+        for n in range(1,len(bo['column index'])):
+            if bo['trend'][n] == BULLISH and bo['column index'][n] < np.size(mtx,1)-1:
+                
+                # take the highest signal with lowest index if more than one signal in a column     
+                x = np.where(bo['column index'] == bo['column index'][n])[0][0]
+                # set all boxes which are not part of outbreak to zero
+                if not bo['row index'][x] < bo['row index'][n]:
+                    T[:bo['row index'][n],bo['column index'][n]] = 0     
+                
+                sigcheck[bo['column index'][n]] = 1
+                    
+        # if there is no signal in column set value in T to zero. 
+        T[:,(sigcheck == 0)] = 0  
+        
+        # C contains the heights of the outbreak for all poles                
+        C = np.abs(np.sum(T,0))
+        
+        # D will contain long tails
+        D = C.copy()
+        
+        # remove poles smaller than cutoof and long tails
+        C[(C < cutoff) | (C >= longpole_cutoff)] = 0
+        
+        # remain the long tails
+        D[D < longpole_cutoff] = 0
+        
+        x = np.where(C > 0)[0]                                                        
+        if np.any(x):
+            for col in x:
+                # rev contains number of oxes to reverse until a pole will be activated
+                rev = np.ceil(np.sum(np.abs(mtx[:,col]))/2)
+                # row contains index of box where the pole is activated    
+                row = np.where(mtx[:,col] == 1)[0][-1] - rev
+                row = row.astype(int)
+                
+                if mtx[row,col+1] == -1:                                                
+                    poles['pattern'][idx] = 'high pole'
+                    poles['activation row'][idx] = row
+                    poles['activation column'][idx] = col+1
+                    poles['pole column height'][idx] = np.sum(np.abs(mtx[:,col])).astype(int)
+                    poles['pole outbreak height'][idx] = C[col].astype(int)
+                    poles['retracement'][idx] = rev.astype(int)
+                    label = 'S-hp('+ str(poles['pole column height'][idx]) +')o('+str(poles['pole outbreak height'][idx])+')r('+str(poles['retracement'][idx])+')'
+                    poles['label'][idx] = label
+                    idx += 1
+        
+        #%% long tail up / long high pole
+        x = np.where(D > 0)[0]
+        
+        if np.any(x):
+            for col in x:
+                # row contains index of box where the long tail buy is activated    
+                row = np.where(mtx[:,col] == 1)[0][-1] - longpole_retracement
+                row = row.astype(int)
+                if mtx[row,col+1] == -1:
+                    poles['pattern'][idx] = 'long high pole'
+                    poles['activation row'][idx] = row
+                    poles['activation column'][idx] = col+1
+                    poles['pole column height'][idx] = np.sum(np.abs(mtx[:,col])).astype(int)
+                    poles['pole outbreak height'][idx] = D[col].astype(int)
+                    poles['retracement'][idx] = longpole_retracement
+                    label = 'B-lhp('+ str(poles['pole column height'][idx]) +')o('+ str(D[col].astype(int)) +')r('+str(longpole_retracement)+')'
+                    poles['label'][idx] = label
+                    idx += 1            
+        #%% prepare output
+        # find index of no entries:                
+        x = np.argwhere(poles['activation column'] == 0)   
+        # delete fields with no entries
+        for key in keys:
+            poles[key] = np.delete(poles[key],x)    
+        # sort poles by column
+        idx = np.argsort(poles['activation column'])    
+        for key, value in poles.items():
+                poles[key]=poles[key][idx] 
+        
+        return poles
+
+
+    def rank_mtx(self, mtx):
+        
+        last_trend = np.sign(np.sum(mtx[:,-1]))
+        if last_trend == 1:
+            last_trend = BULLISH
+        else:
+            last_trend = BEARISH
+            
+        last_column = np.size(mtx,1) - 1    
+            
+        signals = self.simple_signals(mtx)  
+        last_signal_column = signals['column index'][-1]
+        
+        rank = 0
+        
+        if (last_signal_column == last_column)   & (last_trend == BULLISH):
+            rank =  3
+        elif (last_signal_column == last_column) & (last_trend == BEARISH):
+            rank = -3
+        elif (last_signal_column == last_column - 1) & (last_trend == BULLISH):
+            rank = -2
+        elif (last_signal_column == last_column - 1) & (last_trend == BEARISH):
+            rank =  2
+        elif (last_signal_column <= last_column - 2) & (last_trend == BULLISH):
+            rank =  1
+        elif (last_signal_column <= last_column - 2) & (last_trend == BEARISH):
+            rank = -1
+            
+        return rank
+
+    #%% forward matrix trend continous
+
+    def fwd_in_col(self, mtx):
+        
+        last_trend = np.sign(np.sum(mtx[:,-1]))
+        if last_trend == 1:
+            last_trend = BULLISH
+        else:
+            last_trend = BEARISH
+        
+        #last_column = np.size(mtx,1) - 1
+        
+        signals = self.simple_signals(mtx)  
+        last_signal_column = signals['column index'][-1]
+        
+        x = np.where(mtx[:,-1] != 0)[0]
+        if last_trend == BULLISH:
+            last_row = x[-1]
+        elif last_trend == BEARISH:
+            last_row = x[0]
+        
+        signals = self.simple_signals(mtx)
+        #last_signal_column = signals['column'][-1]
+        last_signal_row = signals['row index'][-1] 
+        #last_signal_label = signals['label'][-1]
+        
+        conti_mtx = mtx.copy()
+
+        x = np.where(mtx[:,-1] != 0)[0][0] # x= x[0]
+
+        if last_trend == BULLISH:
+            conti_mtx[x:,-1] = BULLISH         
+        
+        elif last_trend == BEARISH:
+            conti_mtx[:x,-1] = BEARISH 
+
+        conti_signal = self.simple_signals(conti_mtx)
+        
+        x   = np.where(conti_signal['column index'] == np.size(conti_mtx,1)-1)[0]
+        x   = conti_signal['row index'][x]
+        
+        # check if last column already contains signals, if not set row to last plotted box index
+        if last_signal_column != np.size(conti_mtx,1)-1:    
+            last_signal_row = last_row
+        
+        
+        if last_trend == BULLISH:    
+            x   = x[x > last_signal_row] # consider only signals greater than the last signal in this column
+        
+            if np.any(x):
+                row = np.min(x)
+                conti_mtx[row+1:,-1] = 0
+            else:
+                conti_mtx = mtx
+        
+        elif last_trend == BEARISH:    
+            x   = x[x < last_signal_row]
+            
+            if np.any(x):
+                row = np.max(x)
+                conti_mtx[:row,-1] = 0
+            else:
+                conti_mtx = mtx
+                
+        return conti_mtx
+
+
+    #%% forward matrix trend reverses
+
+    def fwd_next_col(self, mtx):
+        
+        last_trend = np.sign(np.sum(mtx[:,-1]))
+        if last_trend == 1:
+            last_trend = BULLISH
+        else:
+            last_trend = BEARISH
+
+        rev_mtx = mtx.copy()
+        rev_mtx = np.append(rev_mtx,np.zeros((np.size(rev_mtx,0),1)),1)
+        
+        x = np.where(mtx[:,-1] != 0)[0]
+        
+        if last_trend == BULLISH:
+            x = x[-1]
+            rev_mtx[:x,-1] = BEARISH 
+        
+        elif last_trend == BEARISH:
+            x = x[0] + 1
+            rev_mtx[x:,-1] = BULLISH  
+        
+        rev_signal = self.simple_signals(rev_mtx)
+        
+        x = np.where(rev_signal['column index'] == np.size(rev_mtx,1)-1)[0]
+        
+        if last_trend == BULLISH:
+            row = np.max(rev_signal['row index'][x])
+            rev_mtx[:row, -1] = 0           
+        
+        elif last_trend == BEARISH:
+            row = np.min(rev_signal['row index'][x])
+            rev_mtx[row+1:, -1] = 0
+        
+        return rev_mtx    
+
+    #%% next signals
+
+    def next_rev_signal(self, mtx):
+        
+        rev_mtx = self.fwd_next_col(mtx)
+
+        next_rev_signal = self.simple_signals(rev_mtx)
+
+        for key in next_rev_signal.keys():
+            next_rev_signal[key] = next_rev_signal[key][-1]
+            
+        return next_rev_signal
+
+
+    def next_conti_signal(self, mtx):
+        
+        conti_mtx = self.fwd_in_col(mtx)
+
+        next_conti_signal = self.simple_signals(conti_mtx)
+
+        for key in next_conti_signal.keys():
+            next_conti_signal[key] = next_conti_signal[key][-1]
+        
+        return next_conti_signal
+
+    #%% signal scores
+
+    def signal_score(self, mtx):
+        
+        signals = self.simple_signals(mtx)
+
+        last_signal_col   = signals['column index'][-1]
+        last_signal_trend = signals['trend'][-1]
+        last_col_trend = np.sign(np.sum(mtx[:,-1]))
+
+        numcols = np.size(mtx,1) - 1
+        
+        if last_signal_col  == numcols and last_signal_trend == BULLISH:
+            score = 3
+        elif last_signal_col == numcols and last_signal_trend == BEARISH:
+            score = -3
+        elif last_signal_col == numcols-1 and last_signal_trend == BULLISH:
+            score = 2
+        elif last_signal_col == numcols-1 and last_signal_trend == BEARISH:
+            score = -2
+        elif last_col_trend == BULLISH:
+            score = 1
+        elif last_col_trend == BEARISH:
+            score = -1
+        else:
+            score = 0
+                    
+        return score 
+
+    #%% price levels for score change
+
+    def score_change_price_levels(self, mtx):
+        reversal = self.reversal
+        boxes = self.boxscale
+
+        score = self.signal_score(mtx)
+        
+        price_levels = [0, 0, 0, 0, 0, 0, 0]
+        price_levels[0] = score
+        
+        new_added_last_col = self.fwd_next_col(mtx)[:,-1]
+        completed_last_col = self.fwd_in_col(mtx)[:,-1]
+            
+        if score == 3: # tested: ok
+                    
+            # 3 -> 2
+            idx = np.where(new_added_last_col!=0)[0][-1]
+            price_levels[2] = boxes[idx - reversal + 1] 
+            
+            # 3 -> -3
+            idx = np.where(new_added_last_col!=0)[0][0]
+            price_levels[-3] = boxes[idx]
+                
+        elif score == 2: # tested: ok
+            
+            # 2 -> 3
+            idx = np.where(new_added_last_col!=0)[0][-1]
+            price_levels[3] = boxes[idx]    
+            
+            # 2 -> 1
+            idx = np.where(new_added_last_col!=0)[0][0]
+            price_levels[1] = boxes[idx + reversal - 1]
+            
+            # 2 -> -3
+            idx = np.where(completed_last_col!=0)[0][0]
+            price_levels[-3] = boxes[idx]
+            
+        elif score == 1: # tested: ok
+            
+            # 1 -> 3
+            idx = np.where(completed_last_col!=0)[0][-1]
+            price_levels[3] = boxes[idx] 
+            
+            # 1 -> -1
+            idx = np.where(new_added_last_col!=0)[0][-1]
+            price_levels[-1] = boxes[idx - reversal + 1] 
+            
+            # 1 -> -3
+            idx = np.where(new_added_last_col!=0)[0][0]
+            price_levels[-3] = boxes[idx]
+        
+        elif score == -1: # tested: ok
+            
+            # -1 -> 3
+            idx = np.where(new_added_last_col!=0)[0][-1]
+            price_levels[3] = boxes[idx]
+            
+            # -1 -> 1
+            idx = np.where(new_added_last_col!=0)[0][0]
+            price_levels[1] = boxes[idx + reversal - 1] 
+            
+            # -1 -> -3
+            idx = np.where(completed_last_col!=0)[0][0]
+            price_levels[-3] = boxes[idx] 
+            
+        elif score == -2: # tested: ok
+            
+            # -2 -> 3
+            idx = np.where(completed_last_col!=0)[0][-1]
+            price_levels[3] = boxes[idx] 
+            
+            # -2 -> -1
+            idx = np.where(new_added_last_col!=0)[0][-1]
+            price_levels[-1] = boxes[idx - reversal + 1] 
+            
+            # -2 -> -3
+            idx = np.where(new_added_last_col!=0)[0][0]
+            price_levels[-3] = boxes[idx] 
+            
+            
+        elif score == -3: # tested: ok
+            
+            # -3 -> 3
+            idx = np.where(new_added_last_col!=0)[0][-1]
+            price_levels[3] = boxes[idx] 
+            
+            # -3 -> -2
+            idx = np.where(new_added_last_col!=0)[0][0]
+            price_levels[-2] = boxes[idx + reversal - 1] 
+            
+        return price_levels  
 
     def _coordinates2plot_grid(self, array):
         """
