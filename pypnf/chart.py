@@ -2749,7 +2749,7 @@ class PointFigureChart:
         
         for n in range(np.size(bo['column index'])):
             
-            row = bo['row index'][n]    
+            row = bo['box index'][n]    
             col = bo['column index'][n]
             width = bo['width'][n]
             hits = bo['hits'][n]
@@ -2808,7 +2808,7 @@ class PointFigureChart:
         labels = np.array([],dtype=object)
         
         for n in range(np.size(bo['column index'])):
-            row = bo['row index'][n]
+            row = bo['box index'][n]
             col = bo['column index'][n]
             
             if value[n] > 0 and value[n] == ratings[row, col]:
@@ -2838,7 +2838,7 @@ class PointFigureChart:
                     labels = np.append(labels,label)
         
         signals = { 'label': labels,
-                    'row index': rows.astype(int),
+                    'box index': rows.astype(int),
                     'column index': cols.astype(int),
                     'trend': trends,
                     'pattern': pattern,
@@ -2891,8 +2891,8 @@ class PointFigureChart:
                 # take the lowest signal with highes index if more than one signal in a column
                 x = np.where(bo['column index'] == bo['column index'][n])[0][-1]
                 # set all boxes which are not part of outbreak to zero
-                if not bo['row index'][x] > bo['row index'][n]:
-                    T[bo['row index'][n]:,bo['column index'][n]] = 0    
+                if not bo['box index'][x] > bo['box index'][n]:
+                    T[bo['box index'][n]:,bo['column index'][n]] = 0    
         
                 sigcheck[bo['column index'][n]] = 1
                 
@@ -2968,8 +2968,8 @@ class PointFigureChart:
                 # take the highest signal with lowest index if more than one signal in a column     
                 x = np.where(bo['column index'] == bo['column index'][n])[0][0]
                 # set all boxes which are not part of outbreak to zero
-                if not bo['row index'][x] < bo['row index'][n]:
-                    T[:bo['row index'][n],bo['column index'][n]] = 0     
+                if not bo['box index'][x] < bo['box index'][n]:
+                    T[:bo['box index'][n],bo['column index'][n]] = 0     
                 
                 sigcheck[bo['column index'][n]] = 1
                     
@@ -3093,7 +3093,7 @@ class PointFigureChart:
         
         signals = self.simple_signals(mtx)
         #last_signal_column = signals['column'][-1]
-        last_signal_row = signals['row index'][-1] 
+        last_signal_row = signals['box index'][-1] 
         #last_signal_label = signals['label'][-1]
         
         conti_mtx = mtx.copy()
@@ -3109,7 +3109,7 @@ class PointFigureChart:
         conti_signal = self.simple_signals(conti_mtx)
         
         x   = np.where(conti_signal['column index'] == np.size(conti_mtx,1)-1)[0]
-        x   = conti_signal['row index'][x]
+        x   = conti_signal['box index'][x]
         
         # check if last column already contains signals, if not set row to last plotted box index
         if last_signal_column != np.size(conti_mtx,1)-1:    
@@ -3165,11 +3165,11 @@ class PointFigureChart:
         x = np.where(rev_signal['column index'] == np.size(rev_mtx,1)-1)[0]
         
         if last_trend == BULLISH:
-            row = np.max(rev_signal['row index'][x])
+            row = np.max(rev_signal['box index'][x])
             rev_mtx[:row, -1] = 0           
         
         elif last_trend == BEARISH:
-            row = np.min(rev_signal['row index'][x])
+            row = np.min(rev_signal['box index'][x])
             rev_mtx[row+1:, -1] = 0
         
         return rev_mtx    
