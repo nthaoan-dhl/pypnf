@@ -3075,7 +3075,7 @@ class PointFigureChart:
     def fwd_in_col(self, mtx):
         
         last_trend = np.sign(np.sum(mtx[:,-1]))
-        if last_trend == 1:
+        if last_trend == BULLISH:
             last_trend = BULLISH
         else:
             last_trend = BEARISH
@@ -3142,7 +3142,7 @@ class PointFigureChart:
     def fwd_next_col(self, mtx):
         
         last_trend = np.sign(np.sum(mtx[:,-1]))
-        if last_trend == 1:
+        if last_trend == BULLISH:
             last_trend = BULLISH
         else:
             last_trend = BEARISH
