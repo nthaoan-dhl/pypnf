@@ -70,6 +70,7 @@ pnf = PointFigureChart(ts=data, method='h/l', reversal=2, boxsize=50, scaling='a
 pnf.bollinger(5, 2)
 pnf.donchian(8,2)
 pnf.psar(0.02, 0.2)
+pnf.write_html('chart.html')
 pnf.show()
 ```
 ![chart](https://github.com/swaschke/pypnf/blob/main/images/chart.png)
