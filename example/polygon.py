@@ -89,17 +89,7 @@ class PolygonDataManager:
         print(f"Saved {len(market_data['date'])} {timeframe} records to {filename}")
     
     def get_polygon_symbol(self, symbol):
-        """Convert symbol to Polygon.io format"""
-        symbol_map = {
-            '^GSPC': 'SPY',
-            '^SPX': 'SPY',
-            '^DJI': 'DIA',
-            '^IXIC': 'QQQ',
-            'AAPL': 'AAPL',
-            'MSFT': 'MSFT',
-            'TSLA': 'TSLA'
-        }
-        return symbol_map.get(symbol, symbol.replace('^', ''))
+        return symbol
     
     def handle_api_error(self, response, attempt, max_retries):
         """Handle specific API error responses with detailed messages"""
@@ -560,7 +550,6 @@ class PolygonDataManager:
             'atr': 0.5,      # ATR based - smaller boxes
             'cla': 0.75,     # Classical - slightly smaller
             'log': 0.1,      # Logarithmic - much smaller
-            'volatility': 0.3 # Volatility based - medium
         }
         
         return boxsize * scaling_multipliers.get(scaling, 1.0)
@@ -827,18 +816,18 @@ def update_sp500_comprehensive(API_KEY=None):
     
     return results
 
-def create_custom_chart(symbol, timeframe, scaling='abs', boxsize=None, reversal=3, API_KEY=None):
+def create_custom_chart(symbol, timeframe, scaling='abs', boxsize=None, reversal=3, API_KEY=None, force_refresh=False, historical_months=6):
     """Create a single custom chart with specific parameters"""
     data_manager = PolygonDataManager()
     if not API_KEY:
         raise ValueError("API_KEY is required")
 
     try:
-        data = data_manager.get_data_with_update(symbol, API_KEY, timeframe=timeframe)
+        data = data_manager.get_data_with_update(symbol, API_KEY, timeframe=timeframe, force_refresh=force_refresh, historical_months=historical_months)
         pnf = data_manager.create_chart(symbol, data, timeframe, scaling=scaling, boxsize=boxsize, reversal=reversal)
         
-        scaling_suffix = f"_{scaling}" if scaling != 'abs' else ''
-        chart_filename = f"chart_{symbol.replace('^', '')}_{timeframe}{scaling_suffix}_custom.html"
+        scaling_suffix = f"_{scaling}"
+        chart_filename = f"chart_{symbol.replace('^', '')}_{timeframe}{scaling_suffix}_{boxsize}_x_{reversal}.html"
         pnf.write_html(chart_filename)
         
         print(f"Custom chart saved: {chart_filename}")
@@ -850,5 +839,5 @@ def create_custom_chart(symbol, timeframe, scaling='abs', boxsize=None, reversal
         return None
 
 API_KEY = "YOUR_POLYGON_API_KEY"
-pnf = create_custom_chart("^GSPC", "10min", scaling="log", boxsize=0.5, reversal=3, API_KEY=API_KEY)
+pnf = create_custom_chart("SPY", "10min", scaling="log", boxsize=1, reversal=3, API_KEY=API_KEY, force_refresh=True, historical_months=24)
 pnf.show()
