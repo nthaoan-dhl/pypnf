@@ -2927,16 +2927,19 @@ class PointFigureChart:
         if self.trendlines is not None:
             print(f'last trendline: {last_trendline} line of length {last_trendline_length}')
         return f'printed {columns}/{total_columns} columns.'
-    
-    def write_html(self, fname='pnf_chart.html', date_format='%Y-%m-%d'):
+
+    def write_html(self, fname='pnf_chart.html', date_format='%Y-%m-%d', template=None):
         """
         Saves the Point and Figure chart as an SVG in HTML file.
         """
         self._prepare_variables_for_plotting()
         self.show_trendlines = 'external'
-
-        file = 'html/svg_in_html.html'
-        html = files('pypnf').joinpath(file).read_text()
+        if template is not None:
+            with open(template, 'r') as f:
+                html = f.read()
+        else:
+            file = 'html/svg_in_html.html'
+            html = files('pypnf').joinpath(file).read_text()
 
         pattern = r'let title = \".*?\";'
         data_str = json.dumps(self.title)
