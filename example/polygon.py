@@ -839,5 +839,5 @@ def create_custom_chart(symbol, timeframe, scaling='abs', boxsize=None, reversal
         return None
 
 API_KEY = "YOUR_POLYGON_API_KEY"
-pnf = create_custom_chart("SPY", "10min", scaling="log", boxsize=1, reversal=3, API_KEY=API_KEY, force_refresh=True, historical_months=24)
+pnf = create_custom_chart("SPY", "10min", scaling="log", boxsize=1, reversal=3, API_KEY=API_KEY, historical_months=24)
 pnf.show()
