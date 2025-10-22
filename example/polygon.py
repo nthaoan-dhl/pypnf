@@ -580,7 +580,7 @@ class PolygonDataManager:
         scaling_config = self.scaling_methods[scaling]
         box_unit = "%" if scaling == 'log' else "" if scaling == 'cla' else "pt"
         box_value = f"{scaling} {boxsize}{box_unit}" if scaling != 'cla' else ""
-        title = f'{symbol} {timeframe} - {box_value}'
+        title = f'{symbol} {timeframe} (polygon.io)'
         
         # Create chart with specified scaling
         pnf = PointFigureChart(
