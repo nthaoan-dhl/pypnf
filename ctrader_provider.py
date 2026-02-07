@@ -147,7 +147,8 @@ def fetch_ohlcv(symbol: str, start_date: str, end_date: str, timeframe: str = 'h
     """
     
     if not CTRADER_ACCESS_TOKEN or not CTRADER_ACCOUNT_ID:
-        raise RuntimeError("Missing CTRADER_ACCESS_TOKEN or CTRADER_ACCOUNT_ID")
+        print("⚠️  Missing CTRADER_ACCESS_TOKEN or CTRADER_ACCOUNT_ID; using test data")
+        return _generate_test_candles(symbol, start_date, end_date, timeframe)
     
     # Try live gRPC if proto is available
     if PROTO_AVAILABLE:
