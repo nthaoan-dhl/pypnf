@@ -151,9 +151,25 @@ Point & Figure (abs|cl) 2 x 3 | AAPL
 38  .  O  X  *  .  .  .  .  .  .  .  38
 36  .  O  *  .  .  .  .  .  .  .  .  36
 --  -  -  -  -  -  -  -  -  -  -  -  --
-last trendline: bullish support line of length 10
+
+External Trendlines (2 found):
+  1. bullish support        | length:  10 | col:   0 | price: 36
+  2. bearish resistance     | length:   4 | col:  10 | price: 52
+
+Last trendline: bullish support line of length 10
 printed 11/11 columns.
 ```
+
+**Chart Legend:**
+- `X` = Price move up
+- `O` = Price move down  
+- `.` = Empty box
+- `*` = Trendline marker (displayed on empty boxes only)
+
+**Trendline Information:**
+- The chart automatically displays all **external trendlines** with detailed information including type, length, column position, and starting price
+- External trendlines are the most significant support/resistance lines that extend beyond the price action
+- Use `pnf.get_trendlines(length=4, mode='strong')` to calculate trendlines before printing
 
 <hr>
 

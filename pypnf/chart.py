@@ -1178,7 +1178,7 @@ class PointFigureChart:
                 self.action_index_matrix[iB[n]:iB[n - 1] + 1, iC[n]] = iTS[n]
 
             # negative trend reverses
-            elif TF[n - 1] == BEARISH and TF[n] == BaseException:
+            elif TF[n - 1] == BEARISH and TF[n] == BULLISH:
                 mtx[iB[n - 1] + 1:iB[n] + 1, iC[n]] = TF[n]
                 self.action_index_matrix[iB[n - 1] + 1:iB[n] + 1, iC[n]] = iTS[n]
 
@@ -5094,10 +5094,12 @@ class PointFigureChart:
                             if mtx[r, c] == 0:
                                 print_mtx[r, c] = -2
 
-        columns = 30
+        # Use max_columns attribute if set, otherwise default to 30
+        columns = getattr(self, 'max_columns', 30)
         total_columns = np.shape(mtx)[1]
-
-        if columns >= total_columns:
+        
+        # If columns is 0, display all columns
+        if columns == 0 or columns >= total_columns:
             columns = total_columns
 
         print_mtx = print_mtx[:, -columns:]
@@ -5131,8 +5133,74 @@ class PointFigureChart:
         print(self.title)
         print(table)
 
+        # Display trendlines information
         if self.trendlines is not None:
-            print(f'last trendline: {last_trendline} line of length {last_trendline_length}')
+            tlines = self.trendlines
+            external_trendlines = []
+            for n in range(0, np.size(tlines['column index'])):
+                if tlines['bounded'][n] == 'external':
+                    tline_info = {
+                        'type': tlines['type'][n],
+                        'length': tlines['length'][n],
+                        'column': tlines['column index'][n],
+                        'box': self.boxscale[tlines['box index'][n]]
+                    }
+                    external_trendlines.append(tline_info)
+            
+            if external_trendlines:
+                print(f'\nExternal Trendlines ({len(external_trendlines)} found):')
+                for i, tl in enumerate(external_trendlines, 1):
+                    print(f"  {i}. {tl['type']:22s} | length: {tl['length']:3d} | col: {tl['column']:3d} | price: {tl['box']:.4g}")
+                print(f'\nLast trendline: {last_trendline} line of length {last_trendline_length}')
+
+        # Display breakouts information
+        if self.breakouts is not None:
+            bo = self.breakouts
+            # Filter to recent columns (within displayed range)
+            recent_bo = []
+            for i in range(len(bo['column index'])):
+                if bo['column index'][i] >= total_columns - columns:
+                    recent_bo.append({
+                        'trend': 'Bullish' if bo['trend'][i] == 1 else 'Bearish',
+                        'type': bo['type'][i],
+                        'column': bo['column index'][i],
+                        'box': self.boxscale[bo['box index'][i]],
+                        'hits': bo['hits'][i]
+                    })
+            
+            if recent_bo:
+                print(f'\nBreakouts in displayed range ({len(recent_bo)} found):')
+                for i, b in enumerate(recent_bo, 1):
+                    print(f"  {i}. {b['trend']:8s} {b['type']:12s} | col: {b['column']:3d} | price: {b['box']:.4g} | hits: {b['hits']:2d}")
+
+        # Display signals/patterns information
+        if self.signals is not None:
+            sig = self.signals
+            # Filter signals to recent columns
+            recent_signals = []
+            for i in range(len(sig['type'])):
+                if sig['type'][i] > 0:  # Signal exists
+                    # Get column from ts index
+                    ts_idx = sig['ts index'][i]
+                    if ts_idx < len(self.pnf_timeseries['column index']):
+                        col_idx = int(self.pnf_timeseries['column index'][ts_idx]) if not np.isnan(self.pnf_timeseries['column index'][ts_idx]) else i
+                    else:
+                        col_idx = i
+                    
+                    if col_idx >= total_columns - columns:
+                        signal_type = SIGNAL_TYPES[sig['type'][i] - 1] if sig['type'][i] <= len(SIGNAL_TYPES) else f"Unknown({sig['type'][i]})"
+                        recent_signals.append({
+                            'type': signal_type,
+                            'column': col_idx,
+                            'box': self.boxscale[sig['box index'][i]] if sig['box index'][i] < len(self.boxscale) else 0,
+                            'width': sig['width'][i]
+                        })
+            
+            if recent_signals:
+                print(f'\nSignals/Patterns in displayed range ({len(recent_signals)} found):')
+                for i, s in enumerate(recent_signals, 1):
+                    print(f"  {i}. {s['type']:30s} | col: {s['column']:3d} | price: {s['box']:.4g} | width: {s['width']:2d}")
+
         return f'printed {columns}/{total_columns} columns.'
 
     def write_html(self, fname='pnf_chart.html', date_format='%Y-%m-%d', template=None):
