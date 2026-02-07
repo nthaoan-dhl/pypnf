@@ -13,11 +13,10 @@ Script `pnfchart.py` cho phép bạn tạo biểu đồ Point & Figure từ dữ
 ## Cài đặt
 
 ```bash
-pip install pypnf ccxt yfinance pandas
+pip install ccxt yfinance pandas
 ```
 
 **Các gói đàu tiên:**
-- `pypnf`: Thư viện Point & Figure
 - `ccxt`: Hỗ trợ 100+ sàn giao dịch crypto
 - `yfinance`: Lấy dữ liệu cổ phiếu Yahoo Finance
 - `pandas`: Xử lý dữ liệu
@@ -110,7 +109,7 @@ python pnfchart.py ^HSI --source yfinance     # Hang Seng Index
 python pnfchart.py ^GSPC --source yfinance    # S&P 500
 ```
 
-#### 2. **ccxt** - Cryptocurrency Data
+#### 1. **ccxt** - Cryptocurrency Data
 
 Lấy dữ liệu crypto từ nhiều sàn giao dịch. Ở đây:
 - Pair: Dùng định dạng `BTC/USDT`, `ETH/USD`, vàv...
@@ -132,6 +131,8 @@ python pnfchart.py BTC/USDT --source ccxt --exchange binance --timeframe 1w
 # Với kồng thời gian cụ thể
 python pnfchart.py BTC/USDT --source ccxt --exchange binance --start 2025-08-01 --end 2025-12-31
 ```
+
+### SCALING (Tỷ lệ)
 
 #### 1. **abs** - Absolute (Tuyệt đối)
 ```bash
@@ -242,6 +243,32 @@ python pnfchart.py AAPL --scaling log --boxsize 2
 python pnfchart.py AAPL --scaling cla --boxsize 1
 ```
 
+### Ví dụ 8: Phân tích Cryptocurrency - Bitcoin từ Binance
+
+```bash
+# Bitcoin 1 ngày (default)
+python pnfchart.py BTC/USDT --source ccxt --exchange binance --no-signals --no-breakouts
+
+# Bitcoin 4 giờ
+python pnfchart.py BTC/USDT --source ccxt --exchange binance --timeframe 4h --columns 50
+
+# Bitcoin với trendlines
+python pnfchart.py BTC/USDT --source ccxt --exchange binance --start 2025-06-01 --end 2025-12-31
+```
+
+### Ví dụ 9: Phân tích altcoins từ các sàn khác nhau
+
+```bash
+# Ethereum từ Kraken
+python pnfchart.py ETH/USD --source ccxt --exchange kraken --timeframe 1h
+
+# XRP từ Binance  
+python pnfchart.py XRP/USDT --source ccxt --exchange binance --start 2025-01-01
+
+# Litecoin từ Coinbase
+python pnfchart.py LTC/USD --source ccxt --exchange coinbase --timeframe 1d
+```
+
 ## Hiểu Output của Chart
 
 ### 1. Chart Cơ Bản
@@ -330,6 +357,39 @@ python pnfchart.py AAPL --save
 # Mở file AAPL_pnf_chart.html trong browser
 ```
 
+### 5. Phân tích Cryptocurrency (CCXT)
+
+**Các sàn giao dịch hỗ trợ (phổ biến):**
+- `binance`: Sàn lớn nhất (hầu hết cặp)
+- `kraken`: Sàn uy tín (Bitcoin, Ethereum, altcoins)
+- `coinbase`: Sàn US (chủ yếu BTC, ETH, LTC)
+- `huobi`: Sàn Trung Quốc
+- `bybit`: Sàn futures
+- `kucoin`, `bitfinex`, `gemini`, ...
+
+**Chọn timeframe phù hợp:**
+- `1m`, `5m`, `15m`: Scalping/intraday
+- `1h`, `4h`: Day trading
+- `1d`: Swing trading (mặc định)
+- `1w`: Position trading
+
+**Cú pháp pair:**
+- Binance: `BTC/USDT`, `ETH/BUSD`, `XRP/USDT`
+- Kraken: `BTC/USD`, `ETH/USD`, `XRP/USD`
+- Coinbase: `BTC/USD`, `ETH/USD`, `LTC/USD`
+
+**Ví dụ:**
+```bash
+# Giao dịch 4 giờ
+python pnfchart.py BTC/USDT --source ccxt --exchange binance --timeframe 4h
+
+# Giao dịch 1 giờ với cảnh báo trendlines
+python pnfchart.py ETH/USDT --source ccxt --exchange binance --timeframe 1h --columns 30
+
+# Phân tích dài hạn
+python pnfchart.py BTC/USDT --source ccxt --exchange binance --start 2023-01-01
+```
+
 ## Xử Lý Lỗi Thường Gặp
 
 ### 1. Lỗi "No data found"
@@ -356,6 +416,37 @@ Giảm khoảng thời gian hoặc tăng reversal:
 python pnfchart.py AAPL --start 2023-01-01
 # Hoặc
 python pnfchart.py AAPL --reversal 5
+```
+
+### 4. Lỗi CCXT - "No symbols found" hoặc "Pair not available"
+
+Kiểm tra tên pair và sàn giao dịch:
+
+```bash
+# Sai: python pnfchart.py BTCUSDT --source ccxt  (Thiếu /)
+# Đúng:
+python pnfchart.py BTC/USDT --source ccxt --exchange binance
+
+# Kiểm tra pair trên sàn khác
+python pnfchart.py BTC/USD --source ccxt --exchange kraken
+```
+
+### 5. Lỗi CCXT - "Rate limit exceeded"
+
+Một số sàn giới hạn tốc độ request. Script sẽ tự pause, nhưng bạn có thể:
+
+```bash
+# Thử lại với dữ liệu trong ngày
+python pnfchart.py BTC/USDT --source ccxt --exchange binance --start 2025-12-01
+```
+
+### 6. Lỗi CCXT - "Network error"
+
+Kiểm tra kết nối internet hoặc sàn có khả dụng không:
+
+```bash
+# Thử sàn khác
+python pnfchart.py BTC/USDT --source ccxt --exchange kraken
 ```
 
 ## Tích Hợp Vào Workflow
