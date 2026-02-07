@@ -146,6 +146,32 @@ Lấy dữ liệu từ cTrader qua provider module hoặc CSV.
 - Symbol: ví dụ `EURUSD`, `XAUUSD`
 - Timeframe: m1, m5, m15, m30, h1, h4, d1
 
+**Hướng dẫn nhanh (cTrader):**
+
+1) **Test mode (không cần credentials)**
+
+```bash
+python pnfchart.py EURUSD --source ctrader --start 2024-10-01 --end 2024-12-20
+python pnfchart.py XAUUSD --source ctrader --timeframe d1 --columns 50
+```
+
+2) **Live mode (gRPC + OpenAPI)**
+
+- Cài `python-dotenv`
+- Compile proto stubs (xem phần "cTrader Open API Setup")
+- Set biến môi trường trong `.env`
+
+```bash
+CTRADER_CLIENT_ID=your_client_id
+CTRADER_CLIENT_SECRET=your_client_secret
+CTRADER_ACCESS_TOKEN=your_access_token
+CTRADER_ACCOUNT_ID=your_account_id
+CTRADER_HOST=live.ctraderapi.com
+CTRADER_PORT=5035
+```
+
+Sau khi đủ điều kiện, cùng lệnh trên sẽ tự lấy **live data**.
+
 ```bash
 # Dùng CSV (cTrader xuất dữ liệu, set CTRADER_CSV_PATH)
 export CTRADER_CSV_PATH=/path/to/ctrader_eurusd.csv

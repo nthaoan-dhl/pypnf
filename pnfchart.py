@@ -15,7 +15,7 @@ from data_sources import load_yfinance_data, load_ccxt_data, load_ctrader_data
 
 # Default Configuration
 DEFAULT_SYMBOL = 'AMD'
-DEFAULT_START_DATE = '2010-01-01'
+DEFAULT_START_DATE = '2024-01-01'  # Changed from 2010 to reduce data load
 DEFAULT_END_DATE = date.today().strftime('%Y-%m-%d')  # Today's date
 DEFAULT_METHOD = 'h/l'           # 'cl', 'h/l', 'l/h', 'hlc', 'ohlc'
 DEFAULT_REVERSAL = 3            # number of boxes for reversal
