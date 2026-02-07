@@ -363,10 +363,8 @@ def fetch_ohlcv(symbol: str, start_date: str, end_date: str, timeframe: str = 'h
             trendbars = trendbar_res.trendbar
         
         for bar in trendbars:
-            # Get digits for this symbol (assume 5 for FX, 2 for gold/silver)
-            is_metal = symbol.upper() in ['XAUUSD', 'XAGUSD', 'GOLD', 'SILVER']
-            digits = 2 if is_metal else 5
-            divisor = 10 ** digits
+            # Divide all symbols by 100000
+            divisor = 100000
             
             # Handle both dict and object formats
             if isinstance(bar, dict):
@@ -385,10 +383,10 @@ def fetch_ohlcv(symbol: str, start_date: str, end_date: str, timeframe: str = 'h
             dt = datetime.utcfromtimestamp(timestamp_min * 60)
             
             dates.append(dt.strftime('%Y-%m-%d %H:%M:%S'))
-            opens.append(round(open_p / divisor, digits))
-            highs.append(round(high_p / divisor, digits))
-            lows.append(round(low / divisor, digits))
-            closes.append(round(close_p / divisor, digits))
+            opens.append(round(open_p / divisor, 5))
+            highs.append(round(high_p / divisor, 5))
+            lows.append(round(low / divisor, 5))
+            closes.append(round(close_p / divisor, 5))
 
         if not dates:
             raise RuntimeError("No trendbars returned")
