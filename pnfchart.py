@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 """
 Example script to load data from yfinance and create a Point & Figure chart
-Usage: python example_yfinance.py [SYMBOL] [OPTIONS]
-Example: python example_yfinance.py AMD
-         python example_yfinance.py AAPL --method cl --reversal 2
+Usage: python pnfchart.py [SYMBOL] [OPTIONS]
+Example: python pnfchart.py AMD
+         python pnfchart.py AAPL --method cl --reversal 2
 """
 
 import argparse

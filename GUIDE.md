@@ -2,7 +2,7 @@
 
 ## Giới thiệu
 
-Script `example_yfinance.py` cho phép bạn tạo biểu đồ Point & Figure từ dữ liệu cổ phiếu trên Yahoo Finance với nhiều tùy chọn linh hoạt thông qua command line.
+Script `pnfchart.py` cho phép bạn tạo biểu đồ Point & Figure từ dữ liệu cổ phiếu trên Yahoo Finance với nhiều tùy chọn linh hoạt thông qua command line.
 
 ## Cài đặt
 
@@ -15,23 +15,23 @@ pip install pypnf yfinance pandas
 ### 1. Chạy với mã cổ phiếu mặc định (AMD)
 
 ```bash
-python example_yfinance.py
+python pnfchart.py
 ```
 
 ### 2. Chạy với mã cổ phiếu bất kỳ
 
 ```bash
-python example_yfinance.py AAPL
-python example_yfinance.py MSFT
-python example_yfinance.py TSLA
-python example_yfinance.py NVDA
-python example_yfinance.py VFS
+python pnfchart.py AAPL
+python pnfchart.py MSFT
+python pnfchart.py TSLA
+python pnfchart.py NVDA
+python pnfchart.py VFS
 ```
 
 ### 3. Xem tất cả các tùy chọn
 
 ```bash
-python example_yfinance.py --help
+python pnfchart.py --help
 ```
 
 ## Các Tham Số Chi Tiết
@@ -81,14 +81,14 @@ Số lượng box tối thiểu cần thiết để chart đảo chiều xu hư�
 
 #### 1. **abs** - Absolute (Tuyệt đối)
 ```bash
-python example_yfinance.py AAPL --scaling abs --boxsize 5
+python pnfchart.py AAPL --scaling abs --boxsize 5
 ```
 - Mỗi box có kích thước cố định (ví dụ: $5)
 - Phù hợp với cổ phiếu giá ổn định
 
 #### 2. **atr** - Average True Range
 ```bash
-python example_yfinance.py AAPL --scaling atr --boxsize 14
+python pnfchart.py AAPL --scaling atr --boxsize 14
 ```
 - Boxsize = số kỳ để tính ATR (ví dụ: 14 ngày)
 - Tự động điều chỉnh theo biến động thị trường
@@ -96,7 +96,7 @@ python example_yfinance.py AAPL --scaling atr --boxsize 14
 
 #### 3. **cla** - Classic (Truyền thống)
 ```bash
-python example_yfinance.py AAPL --scaling cla --boxsize 1
+python pnfchart.py AAPL --scaling cla --boxsize 1
 ```
 - Phương pháp Point & Figure cổ điển
 - Boxsize là hệ số nhân: 0.02, 0.05, 0.1, 0.25, 1/3, 0.5, 1, 2
@@ -104,7 +104,7 @@ python example_yfinance.py AAPL --scaling cla --boxsize 1
 
 #### 4. **log** - Logarithmic
 ```bash
-python example_yfinance.py AAPL --scaling log --boxsize 1
+python pnfchart.py AAPL --scaling log --boxsize 1
 ```
 - Boxsize là % (ví dụ: 1 = 1%)
 - Phù hợp với cổ phiếu có biên độ giá rộng
@@ -116,13 +116,13 @@ python example_yfinance.py AAPL --scaling log --boxsize 1
 
 ```bash
 # Hiển thị 50 cột gần nhất
-python example_yfinance.py NVDA --columns 50
+python pnfchart.py NVDA --columns 50
 
 # Hiển thị 100 cột gần nhất
-python example_yfinance.py AAPL --columns 100
+python pnfchart.py AAPL --columns 100
 
 # Hiển thị TẤT CẢ các cột (có thể rất rộng)
-python example_yfinance.py MSFT --columns 0
+python pnfchart.py MSFT --columns 0
 ```
 
 **Lưu ý:**
@@ -136,37 +136,37 @@ python example_yfinance.py MSFT --columns 0
 ### Ví dụ 1: Phân tích AMD với cài đặt mặc định
 
 ```bash
-python example_yfinance.py AMD
+python pnfchart.py AMD
 ```
 
 ### Ví dụ 2: Phân tích AAPL với method đóng cửa
 
 ```bash
-python example_yfinance.py AAPL --method cl --reversal 2
+python pnfchart.py AAPL --method cl --reversal 2
 ```
 
 ### Ví dụ 3: Phân tích TSLA từ 2020 với log scaling
 
 ```bash
-python example_yfinance.py TSLA --start 2020-01-01 --scaling log --boxsize 1
+python pnfchart.py TSLA --start 2020-01-01 --scaling log --boxsize 1
 ```
 
 ### Ví dụ 4: Phân tích nhanh không cần patterns
 
 ```bash
-python example_yfinance.py NVDA --no-signals --no-breakouts
+python pnfchart.py NVDA --no-signals --no-breakouts
 ```
 
 ### Ví dụ 5: Lưu chart và hiển thị
 
 ```bash
-python example_yfinance.py MSFT --save --show
+python pnfchart.py MSFT --save --show
 ```
 
 ### Ví dụ 6: Phân tích chi tiết với nhiều tùy chọn
 
 ```bash
-python example_yfinance.py AMD \
+python pnfchart.py AMD \
   --start 2015-01-01 \
   --method h/l \
   --reversal 3 \
@@ -179,13 +179,13 @@ python example_yfinance.py AMD \
 
 ```bash
 # Absolute scaling
-python example_yfinance.py AAPL --scaling abs --boxsize 10
+python pnfchart.py AAPL --scaling abs --boxsize 10
 
 # Log scaling
-python example_yfinance.py AAPL --scaling log --boxsize 2
+python pnfchart.py AAPL --scaling log --boxsize 2
 
 # Classic scaling
-python example_yfinance.py AAPL --scaling cla --boxsize 1
+python pnfchart.py AAPL --scaling cla --boxsize 1
 ```
 
 ## Hiểu Output của Chart
@@ -264,7 +264,7 @@ Các mô hình được phát hiện:
 Nếu chỉ cần xem chart nhanh, bỏ qua các tính toán phức tạp:
 
 ```bash
-python example_yfinance.py AAPL --no-signals --no-breakouts
+python pnfchart.py AAPL --no-signals --no-breakouts
 ```
 
 ### 4. Lưu kết quả
@@ -272,7 +272,7 @@ python example_yfinance.py AAPL --no-signals --no-breakouts
 Để xem chi tiết và tương tác, lưu ra file HTML:
 
 ```bash
-python example_yfinance.py AAPL --save
+python pnfchart.py AAPL --save
 # Mở file AAPL_pnf_chart.html trong browser
 ```
 
@@ -282,8 +282,8 @@ python example_yfinance.py AAPL --save
 
 ```bash
 # Kiểm tra mã cổ phiếu có đúng không
-python example_yfinance.py AAPL  # Đúng
-python example_yfinance.py Apple # Sai
+python pnfchart.py AAPL  # Đúng
+python pnfchart.py Apple # Sai
 ```
 
 ### 2. Lỗi "Signals calculation encountered an issue"
@@ -291,7 +291,7 @@ python example_yfinance.py Apple # Sai
 Một số dữ liệu có thể gây lỗi khi tính toán patterns. Sử dụng:
 
 ```bash
-python example_yfinance.py STOCK --no-signals
+python pnfchart.py STOCK --no-signals
 ```
 
 ### 3. Chart quá dài
@@ -299,9 +299,9 @@ python example_yfinance.py STOCK --no-signals
 Giảm khoảng thời gian hoặc tăng reversal:
 
 ```bash
-python example_yfinance.py AAPL --start 2023-01-01
+python pnfchart.py AAPL --start 2023-01-01
 # Hoặc
-python example_yfinance.py AAPL --reversal 5
+python pnfchart.py AAPL --reversal 5
 ```
 
 ## Tích Hợp Vào Workflow
@@ -312,7 +312,7 @@ python example_yfinance.py AAPL --reversal 5
 #!/bin/bash
 # Tạo chart cho nhiều mã cổ phiếu
 for symbol in AAPL MSFT GOOGL TSLA NVDA; do
-    python example_yfinance.py $symbol --save --no-signals
+    python pnfchart.py $symbol --save --no-signals
     echo "✓ Completed $symbol"
 done
 ```
@@ -321,7 +321,7 @@ done
 
 ```bash
 # Chạy hàng ngày lúc 5:00 PM
-0 17 * * * cd /path/to/pypnf && python example_yfinance.py AMD --save
+0 17 * * * cd /path/to/pypnf && python pnfchart.py AMD --save
 ```
 
 ## Tài Liệu Tham Khảo
