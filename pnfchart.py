@@ -1,16 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Point & Figure Chart Generator - Support for stocks (yfinance) and crypto (CCXT)
+Point & Figure Chart Generator - Support for stocks (yfinance), crypto (CCXT), and cTrader
 Usage: python pnfchart.py [SYMBOL] [OPTIONS]
 Example: python pnfchart.py AMD
          python pnfchart.py BTC/USDT --source ccxt --exchange binance
+         python pnfchart.py EURUSD --source ctrader
 """
 
 import argparse
 from pypnf import PointFigureChart
 from datetime import date
-from data_sources import load_yfinance_data, load_ccxt_data
+from data_sources import load_yfinance_data, load_ccxt_data, load_ctrader_data
 
 # Default Configuration
 DEFAULT_SYMBOL = 'AMD'
@@ -20,9 +21,10 @@ DEFAULT_METHOD = 'h/l'           # 'cl', 'h/l', 'l/h', 'hlc', 'ohlc'
 DEFAULT_REVERSAL = 3            # number of boxes for reversal
 DEFAULT_BOXSIZE = 1             # percentage value for 'cla' scaling
 DEFAULT_SCALING = 'cla'         # 'abs', 'atr', 'cla', 'log'
-DEFAULT_SOURCE = 'yfinance'     # 'yfinance', 'ccxt'
+DEFAULT_SOURCE = 'yfinance'     # 'yfinance', 'ccxt', 'ctrader'
 DEFAULT_EXCHANGE = 'binance'    # CCXT exchange name
-DEFAULT_TIMEFRAME = '1d'        # Candle timeframe for CCXT
+DEFAULT_TIMEFRAME = '1d'        # Candle timeframe (CCXT/ctrader)
+DEFAULT_CTRADER_PROVIDER = 'ctrader_provider'
 
 def parse_arguments():
     """Parse command line arguments"""
@@ -40,13 +42,17 @@ Examples:
   python pnfchart.py BTC/USDT --source ccxt --exchange binance
   python pnfchart.py ETH/USDT --source ccxt --exchange binance --timeframe 1h
   python pnfchart.py BTC/USD --source ccxt --exchange kraken
+
+  # cTrader data
+  python pnfchart.py EURUSD --source ctrader
+  python pnfchart.py XAUUSD --source ctrader --timeframe h1
         """
     )
     
     parser.add_argument('symbol', nargs='?', default=DEFAULT_SYMBOL,
                         help=f'Stock/Crypto symbol (default: {DEFAULT_SYMBOL}). For crypto: use BTC/USDT format')
     parser.add_argument('--source', default=DEFAULT_SOURCE,
-                        choices=['yfinance', 'ccxt'],
+                        choices=['yfinance', 'ccxt', 'ctrader'],
                         help=f'Data source (default: {DEFAULT_SOURCE})')
     parser.add_argument('--start', dest='start_date', default=DEFAULT_START_DATE,
                         help=f'Start date YYYY-MM-DD (default: {DEFAULT_START_DATE})')
@@ -67,7 +73,13 @@ Examples:
     parser.add_argument('--exchange', default=DEFAULT_EXCHANGE,
                         help=f'CCXT exchange name (default: {DEFAULT_EXCHANGE}). Use with --source ccxt')
     parser.add_argument('--timeframe', default=DEFAULT_TIMEFRAME,
-                        help=f'Candle timeframe for CCXT (default: {DEFAULT_TIMEFRAME}). Options: 1m, 5m, 15m, 1h, 4h, 1d, 1w')
+                        help=f'Candle timeframe (CCXT/ctrader). Options: 1m, 5m, 15m, 30m, 1h, 4h, 1d, 1w or m1, m5, m15, m30, h1, h4, d1')
+
+    # cTrader-specific arguments
+    parser.add_argument('--ctrader-provider', default=DEFAULT_CTRADER_PROVIDER,
+                        help=f'cTrader provider module (default: {DEFAULT_CTRADER_PROVIDER})')
+    parser.add_argument('--ctrader-csv', default=None,
+                        help='CSV path for cTrader provider (optional, uses CTRADER_CSV_PATH if set)')
     
     # Output options
     parser.add_argument('--save', action='store_true',
@@ -98,6 +110,15 @@ def main():
                 start_date=args.start_date,
                 end_date=args.end_date,
                 timeframe=args.timeframe
+            )
+        elif args.source.lower() == 'ctrader':
+            ts = load_ctrader_data(
+                symbol=args.symbol,
+                start_date=args.start_date,
+                end_date=args.end_date,
+                timeframe=args.timeframe,
+                provider_module=args.ctrader_provider,
+                csv_path=args.ctrader_csv
             )
         else:
             # Default to yfinance

@@ -171,8 +171,8 @@ class PointFigureChart:
         self.ts = self._prepare_ts(ts)
 
         # chart
-        self.title = self._make_title(title)
         self.boxscale = self._get_boxscale()
+        self.title = self._make_title(title)
         self.pnf_timeseries = self._get_pnf_timeseries()
         self.action_index_matrix = None  # assigned in _pnf_timeseries2matrix()
         self.matrix = self._pnf_timeseries2matrix()
@@ -322,27 +322,80 @@ class PointFigureChart:
 
     def _make_title(self, title):
 
+        def _cla_boxsize_value():
+            if self.boxscale is None or len(self.boxscale) < 2:
+                return None
+            if 'close' not in self.ts:
+                return None
+            price = self.ts['close'][-1]
+            idx = np.searchsorted(self.boxscale, price, side='right') - 1
+            if idx < 0:
+                idx = 0
+            if idx >= len(self.boxscale) - 1:
+                idx = len(self.boxscale) - 2
+            return self.boxscale[idx + 1] - self.boxscale[idx]
+
+        def _log_boxsize_value():
+            if 'close' not in self.ts:
+                return None
+            return self.ts['close'][-1] * (self.boxsize / 100.0)
+
+        def _abs_boxsize_value():
+            try:
+                return float(self.boxsize)
+            except (TypeError, ValueError):
+                return None
+
+        real_boxsize_value = None
+        if self.scaling == 'cla':
+            real_boxsize_value = _cla_boxsize_value()
+        elif self.scaling == 'log':
+            real_boxsize_value = _log_boxsize_value()
+        elif self.scaling == 'abs' or self.scaling == 'atr':
+            real_boxsize_value = _abs_boxsize_value()
+
+        if real_boxsize_value is not None:
+            real_boxsize_value = f"{real_boxsize_value:g}"
+
         if title is None:
 
             if self.scaling == 'log':
-                title = f'Point & Figure ({self.scaling}|{self.method}) {self.boxsize}% x {self.reversal}'
+                if real_boxsize_value is None:
+                    title = f'Point & Figure ({self.scaling}|{self.method}) {self.boxsize}% x {self.reversal}'
+                else:
+                    title = f'Point & Figure ({self.scaling}|{self.method}) {self.boxsize}% ({real_boxsize_value} x {self.reversal})'
 
             elif self.scaling == 'cla':
-                title = f'Point & Figure ({self.scaling}|{self.method}) {self.boxsize}@50 x {self.reversal}'
+                if real_boxsize_value is None:
+                    title = f'Point & Figure ({self.scaling}|{self.method}) {self.boxsize}@50 x {self.reversal}'
+                else:
+                    title = f'Point & Figure ({self.scaling}|{self.method}) {self.boxsize}@50 ({real_boxsize_value} x {self.reversal})'
 
             elif self.scaling == 'abs' or self.scaling == 'atr':
-                title = f'Point & Figure ({self.scaling}|{self.method}) {self.boxsize} x {self.reversal}'
+                if real_boxsize_value is None:
+                    title = f'Point & Figure ({self.scaling}|{self.method}) {self.boxsize} x {self.reversal}'
+                else:
+                    title = f'Point & Figure ({self.scaling}|{self.method}) {self.boxsize} ({real_boxsize_value} x {self.reversal})'
 
         else:
 
             if self.scaling == 'log':
-                title = f'Point & Figure ({self.scaling}|{self.method}) {self.boxsize}% x {self.reversal} | {title}'
+                if real_boxsize_value is None:
+                    title = f'Point & Figure ({self.scaling}|{self.method}) {self.boxsize}% x {self.reversal} | {title}'
+                else:
+                    title = f'Point & Figure ({self.scaling}|{self.method}) {self.boxsize}% ({real_boxsize_value} x {self.reversal}) | {title}'
 
             elif self.scaling == 'cla':
-                title = f'Point & Figure ({self.scaling}|{self.method}) {self.boxsize}@50 x {self.reversal} | {title}'
+                if real_boxsize_value is None:
+                    title = f'Point & Figure ({self.scaling}|{self.method}) {self.boxsize}@50 x {self.reversal} | {title}'
+                else:
+                    title = f'Point & Figure ({self.scaling}|{self.method}) {self.boxsize}@50 ({real_boxsize_value} x {self.reversal}) | {title}'
 
             elif self.scaling == 'abs' or self.scaling == 'atr':
-                title = f'Point & Figure ({self.scaling}|{self.method}) {self.boxsize} x {self.reversal} | {title}'
+                if real_boxsize_value is None:
+                    title = f'Point & Figure ({self.scaling}|{self.method}) {self.boxsize} x {self.reversal} | {title}'
+                else:
+                    title = f'Point & Figure ({self.scaling}|{self.method}) {self.boxsize} ({real_boxsize_value} x {self.reversal}) | {title}'
 
         return title
 

@@ -7,6 +7,7 @@ Script `pnfchart.py` cho phép bạn tạo biểu đồ Point & Figure từ dữ
 **Tính năng chính:**
 - Phân tích dữ liệu cổ phiếu từ Yahoo Finance
 - Phân tích dữ liệu crypto từ 100+ sàn giao dịch (Binance, Kraken, Coinbase, ...)
+- Phân tích dữ liệu từ cTrader (qua provider module hoặc CSV)
 - Động tính phép vị tẤp Point & Figure với nhiều tùy chọn scaling
 - Hiển thị trendlines, breakouts, và các mô hình giá
 
@@ -19,7 +20,11 @@ pip install ccxt yfinance pandas
 **Các gói đàu tiên:**
 - `ccxt`: Hỗ trợ 100+ sàn giao dịch crypto
 - `yfinance`: Lấy dữ liệu cổ phiếu Yahoo Finance
-- `pandas`: Xử lý dữ liệu
+- `pandas`: Xử lý dữ liệu (cũng dùng để đọc CSV cho cTrader)
+
+**cTrader:**
+- Mặc định dùng CSV qua `CTRADER_CSV_PATH`
+- Nếu bạn dùng Open API, hãy cung cấp provider module (xem phần SOURCE)
 
 ## Cách Sử Dụng Cơ Bản
 
@@ -57,11 +62,13 @@ python pnfchart.py --help
 
 | Tham số | Mô tả | Giá trị | Mặc định |
 |---------|-------|---------|----------|
-| `--source` | Nguồn dữ liệu | yfinance, ccxt | yfinance |
+| `--source` | Nguồn dữ liệu | yfinance, ccxt, ctrader | yfinance |
 | `--start` | Ngày bắt đầu | YYYY-MM-DD | 2010-01-01 |
 | `--end` | Ngày kết thúc | YYYY-MM-DD | Hôm nay (today) |
 | `--exchange` | Sàn giao dịch CCXT | binance, kraken, coinbase, ... | binance |
-| `--timeframe` | Khung thời gian (CCXT) | 1m, 5m, 15m, 1h, 4h, 1d, 1w | 1d |
+| `--timeframe` | Khung thời gian (CCXT/cTrader) | 1m, 5m, 15m, 30m, 1h, 4h, 1d, 1w hoặc m1, m5, m15, m30, h1, h4, d1 | 1d |
+| `--ctrader-provider` | Provider module cho cTrader | Python module name | ctrader_provider |
+| `--ctrader-csv` | CSV path cho cTrader | File path | (optional) |
 | `--method` | Phương pháp vẽ chart | cl, h/l, l/h, hlc, ohlc | h/l |
 | `--reversal` | Số box để đảo chiều | Số nguyên | 3 |
 | `--boxsize` | Kích thước box | Số thực | 1 |
@@ -131,6 +138,86 @@ python pnfchart.py BTC/USDT --source ccxt --exchange binance --timeframe 1w
 # Với kồng thời gian cụ thể
 python pnfchart.py BTC/USDT --source ccxt --exchange binance --start 2025-08-01 --end 2025-12-31
 ```
+
+#### 2. **ctrader** - cTrader Data
+
+Lấy dữ liệu từ cTrader qua provider module hoặc CSV.
+
+- Symbol: ví dụ `EURUSD`, `XAUUSD`
+- Timeframe: m1, m5, m15, m30, h1, h4, d1
+
+```bash
+# Dùng CSV (cTrader xuất dữ liệu, set CTRADER_CSV_PATH)
+export CTRADER_CSV_PATH=/path/to/ctrader_eurusd.csv
+python pnfchart.py EURUSD --source ctrader --timeframe h1
+
+# Chỉ định CSV ngay trong CLI
+python pnfchart.py XAUUSD --source ctrader --ctrader-csv /path/to/xauusd.csv --timeframe d1
+
+# Dùng Open API (gRPC) - xem phần cTrader Open API Setup
+python pnfchart.py EURUSD --source ctrader --timeframe m15
+```
+
+**⚠️ Lưu ý:** Hiện tại cTrader sử dụng test data generator để phát triển. Để kết nối live cTrader OpenAPI, xem "cTrader Open API Setup" bên dưới.
+
+#### cTrader Open API Setup (gRPC)
+
+cTrader OpenAPI sử dụng gRPC + Protocol Buffers để truyền dữ liệu. Để integrate live data:
+
+**Step 1:** Download cTrader .proto files
+
+```bash
+# From official repo
+git clone https://github.com/spotware/openapi-proto-messages.git
+cd openapi-proto-messages
+```
+
+**Step 2:** Compile proto files to Python
+
+```bash
+pip install grpcio grpcio-tools protobuf
+
+python -m grpcio_tools.protoc \
+  -I. --python_out=. --grpc_python_out=. \
+  open-api.proto
+```
+
+**Step 3:** Update `ctrader_provider.py` với compiled stubs
+
+```python
+# Sau khi compile, file này sẽ được sinh:
+# - open_api_pb2.py (message definitions)
+# - open_api_pb2_grpc.py (service stubs)
+
+import grpc
+import open_api_pb2
+import open_api_pb2_grpc
+
+# Implement fetch_ohlcv() sử dụng generated stubs
+def fetch_ohlcv(symbol, start_date, end_date, timeframe='h1'):
+    channel = grpc.aio.secure_channel(
+        f"{CTRADER_HOST}:{CTRADER_PORT}",
+        grpc.ssl_channel_credentials()
+    )
+    stub = open_api_pb2_grpc.ProtoOAStub(channel)
+    # ... thực hiện request
+```
+
+**Step 4:** Set cTrader credentials trong `.env`
+
+```bash
+CTRADER_CLIENT_ID=your_client_id
+CTRADER_CLIENT_SECRET=your_client_secret
+CTRADER_ACCESS_TOKEN=your_access_token
+CTRADER_ACCOUNT_ID=your_account_id
+CTRADER_HOST=live.ctraderapi.com
+CTRADER_PORT=5035
+```
+
+**Tệp tham khảo:**
+- `ctrader.proto` - Protobuf message definitions
+- `ctrader_grpc_client.py` - gRPC client base implementation
+- `CTRADER_SETUP.md` - Hướng dẫn setup chi tiết
 
 ### SCALING (Tỷ lệ)
 

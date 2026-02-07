@@ -1,0 +1,80 @@
+syntax = "proto3";
+
+package cTrader;
+
+// Authentication Messages
+message ProtoOAApplicationAuthRequest {
+    string clientId = 1;          // Your Client ID
+    string clientSecret = 2;      // Your Client Secret
+}
+
+message ProtoOAApplicationAuthResponse {
+    bool success = 1;
+    string accessToken = 2;
+}
+
+// Account Authorization
+message ProtoOAAccountAuthRequest {
+    string accessToken = 1;
+}
+
+message ProtoOAAccountAuthResponse {
+    bool success = 1;
+}
+
+// Get Candles Request/Response
+message ProtoOAGetCandlesRequest {
+    int32 accountId = 1;
+    int32 symbolId = 2;
+    CandlestickPeriod period = 3;
+    int64 fromTimestamp = 4;      // milliseconds since epoch
+    int64 toTimestamp = 5;         // milliseconds since epoch
+}
+
+message ProtoOACandlesResponse {
+    Candle candles = 1;           // Array of candles
+}
+
+message Candle {
+    int64 utcTimestampInMinutes = 1;  // minutes since epoch
+    int64 bid_open = 2;               // in cents
+    int64 bid_close = 3;
+    int64 bid_high = 4;
+    int64 bid_low = 5;
+    double ask_open = 6;              // price
+    double ask_close = 7;
+    double ask_high = 8;
+    double ask_low = 9;
+    int64 volume = 10;
+}
+
+// Symbol info
+message Symbol {
+    int32 symbolId = 1;
+    string symbolName = 2;
+    int32 digits = 3;               // decimal places
+    double bid = 4;
+    double ask = 5;
+    double pointSize = 6;
+}
+
+message ProtoOASymbolsListRequest {
+    int32 accountId = 1;
+}
+
+message ProtoOASymbolsListResponse {
+    repeated Symbol symbols = 1;
+}
+
+// Enum for candlestick periods
+enum CandlestickPeriod {
+    M1 = 0;      // 1 minute
+    M5 = 1;      // 5 minutes
+    M15 = 2;     // 15 minutes
+    M30 = 3;     // 30 minutes
+    H1 = 4;      // 1 hour
+    H4 = 5;      // 4 hours
+    D1 = 6;      // daily
+    W1 = 7;      // weekly
+    MN1 = 8;     // monthly
+}

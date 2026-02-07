@@ -1,0 +1,138 @@
+#!/usr/bin/env python3
+"""
+cTrader Data Provider
+Fetches OHLCV candle data via gRPC (requires proto compilation)
+Falls back to test data generator for immediate testing
+"""
+
+import os
+import random
+from datetime import datetime, timedelta
+from typing import Dict, Optional
+
+# Load .env
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
+# Configuration
+CTRADER_HOST = os.getenv('CTRADER_HOST', 'live.ctraderapi.com')
+CTRADER_PORT = int(os.getenv('CTRADER_PORT', 5035))
+CTRADER_ACCESS_TOKEN = os.getenv('CTRADER_ACCESS_TOKEN')
+CTRADER_ACCOUNT_ID = os.getenv('CTRADER_ACCOUNT_ID')
+CTRADER_TEST_MODE = os.getenv('CTRADER_TEST_MODE', 'false').lower() == 'true'
+
+# Symbol price ranges for test data
+SYMBOL_PRICES = {
+    'EURUSD': (0.95, 1.10),
+    'GBPUSD': (1.20, 1.35),
+    'USDJPY': (130, 155),
+    'USDCHF': (0.85, 1.05),
+    'AUDUSD': (0.60, 0.75),
+    'USDCAD': (1.25, 1.40),
+    'NZDUSD': (0.55, 0.70),
+    'XAUUSD': (1800, 2100),
+    'XAGUSD': (20, 32),
+}
+
+def _generate_test_candles(symbol: str, start_date: str, end_date: str, timeframe: str) -> Dict:
+    """Generate realistic test candles for cTrader symbols"""
+    
+    # Get price range
+    start_price, price_range = SYMBOL_PRICES.get(symbol.upper(), (1.0, 0.2))
+    
+    # Parse dates
+    start_dt = datetime.strptime(start_date, '%Y-%m-%d')
+    end_dt = datetime.strptime(end_date, '%Y-%m-%d')
+    
+    # Timeframe to minutes
+    tf_minutes = {
+        'm1': 1, 'm5': 5, 'm15': 15, 'm30': 30,
+        'h1': 60, 'h4': 240, 'd1': 1440, 'w1': 10080,
+        '1m': 1, '5m': 5, '15m': 15, '30m': 30,
+        '1h': 60, '4h': 240, '1d': 1440, '1w': 10080,
+    }.get(timeframe.lower(), 60)
+    
+    # Generate candles
+    dates, opens, highs, lows, closes = [], [], [], [], []
+    
+    current_dt = start_dt
+    current_price = start_price + random.uniform(-price_range/2, price_range/2)
+    
+    while current_dt <= end_dt:
+        # Skip weekends for FX
+        if symbol.upper() not in ['BRENT', 'WTI'] and current_dt.weekday() >= 5:
+            current_dt += timedelta(minutes=tf_minutes)
+            continue
+        
+        # Generate realistic OHLC
+        open_price = current_price
+        change = random.uniform(-0.005, 0.005) * open_price
+        close_price = open_price + change
+        
+        high_price = max(open_price, close_price) + abs(random.uniform(0, 0.003) * open_price)
+        low_price = min(open_price, close_price) - abs(random.uniform(0, 0.003) * open_price)
+        
+        dates.append(current_dt.strftime('%Y-%m-%d %H:%M:%S'))
+        opens.append(round(open_price, 5))
+        highs.append(round(high_price, 5))
+        lows.append(round(low_price, 5))
+        closes.append(round(close_price, 5))
+        
+        current_price = close_price
+        current_dt += timedelta(minutes=tf_minutes)
+    
+    return {
+        'Date': dates,
+        'Open': opens,
+        'High': highs,
+        'Low': lows,
+        'Close': closes
+    }
+
+def _try_grpc_fetch(symbol: str, start_date: str, end_date: str, timeframe: str) -> Optional[Dict]:
+    """Try to fetch from gRPC client if available"""
+    try:
+        # This will only work if proto files have been compiled
+        # For now, this is a placeholder
+        return None
+    except:
+        return None
+
+
+
+def fetch_ohlcv(symbol: str, start_date: str, end_date: str, timeframe: str = 'h1') -> Dict:
+    """
+    Fetch OHLCV data from cTrader
+    
+    Currently uses test data generator. 
+    For live data, requires:
+    1. Download .proto files from https://github.com/spotware/openapi-proto-messages.git
+    2. Compile: python -m grpcio_tools.protoc -I. --python_out=. --grpc_python_out=. open-api.proto
+    3. Implement gRPC client using generated stubs
+    
+    Args:
+        symbol: Trading symbol (e.g., 'EURUSD', 'XAUUSD')
+        start_date: Start date (YYYY-MM-DD)
+        end_date: End date (YYYY-MM-DD)  
+        timeframe: Timeframe (m1, h1, d1, etc.)
+    
+    Returns:
+        Dict with keys: Date, Open, High, Low, Close
+    """
+    
+    if not CTRADER_ACCESS_TOKEN or not CTRADER_ACCOUNT_ID:
+        raise RuntimeError("Missing CTRADER_ACCESS_TOKEN or CTRADER_ACCOUNT_ID in .env")
+    
+    # Try gRPC first
+    if not CTRADER_TEST_MODE:
+        result = _try_grpc_fetch(symbol, start_date, end_date, timeframe)
+        if result:
+            return result
+    
+    # Fallback to test data
+    print(f"📊 Generating test candles for {symbol}")
+    return _generate_test_candles(symbol, start_date, end_date, timeframe)
+
