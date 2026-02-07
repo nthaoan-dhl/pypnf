@@ -1,16 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Example script to load data from yfinance and create a Point & Figure chart
+Point & Figure Chart Generator - Support for stocks (yfinance) and crypto (CCXT)
 Usage: python pnfchart.py [SYMBOL] [OPTIONS]
 Example: python pnfchart.py AMD
-         python pnfchart.py AAPL --method cl --reversal 2
+         python pnfchart.py BTC/USDT --source ccxt --exchange binance
 """
 
 import argparse
-import yfinance as yf
 from pypnf import PointFigureChart
 from datetime import date
+from data_sources import load_yfinance_data, load_ccxt_data
 
 # Default Configuration
 DEFAULT_SYMBOL = 'AMD'
@@ -20,44 +20,34 @@ DEFAULT_METHOD = 'h/l'           # 'cl', 'h/l', 'l/h', 'hlc', 'ohlc'
 DEFAULT_REVERSAL = 3            # number of boxes for reversal
 DEFAULT_BOXSIZE = 1             # percentage value for 'cla' scaling
 DEFAULT_SCALING = 'cla'         # 'abs', 'atr', 'cla', 'log'
-
-def load_yfinance_data(symbol, start_date, end_date):
-    """Download data from yfinance and format for PointFigureChart"""
-    print(f"Downloading {symbol} data from yfinance ({start_date} to {end_date})...")
-    
-    data = yf.Ticker(symbol)
-    ts = data.history(start=start_date, end=end_date)
-    
-    # Reset index
-    ts.reset_index(level=0, inplace=True)
-    
-    # Convert pd.timestamp to string
-    ts['Date'] = ts['Date'].dt.strftime('%Y-%m-%d')
-    
-    # Select required keys
-    ts = ts[['Date', 'Open', 'High', 'Low', 'Close']]
-    
-    # Convert DataFrame to dictionary
-    ts = ts.to_dict('list')
-    
-    return ts
+DEFAULT_SOURCE = 'yfinance'     # 'yfinance', 'ccxt'
+DEFAULT_EXCHANGE = 'binance'    # CCXT exchange name
+DEFAULT_TIMEFRAME = '1d'        # Candle timeframe for CCXT
 
 def parse_arguments():
     """Parse command line arguments"""
     parser = argparse.ArgumentParser(
-        description='Create Point & Figure charts from yfinance data',
+        description='Create Point & Figure charts from stock (yfinance) or crypto (CCXT) data',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  python example_yfinance.py AMD
-  python example_yfinance.py AAPL --method cl --reversal 2
-  python example_yfinance.py TSLA --start 2020-01-01 --scaling log --boxsize 1
-  python example_yfinance.py MSFT --save --show
+  # Stock data (Yahoo Finance)
+  python pnfchart.py AMD
+  python pnfchart.py AAPL --method cl --reversal 2
+  python pnfchart.py TSLA --start 2020-01-01 --scaling log --boxsize 1
+  
+  # Crypto data (CCXT)
+  python pnfchart.py BTC/USDT --source ccxt --exchange binance
+  python pnfchart.py ETH/USDT --source ccxt --exchange binance --timeframe 1h
+  python pnfchart.py BTC/USD --source ccxt --exchange kraken
         """
     )
     
     parser.add_argument('symbol', nargs='?', default=DEFAULT_SYMBOL,
-                        help=f'Stock symbol (default: {DEFAULT_SYMBOL})')
+                        help=f'Stock/Crypto symbol (default: {DEFAULT_SYMBOL}). For crypto: use BTC/USDT format')
+    parser.add_argument('--source', default=DEFAULT_SOURCE,
+                        choices=['yfinance', 'ccxt'],
+                        help=f'Data source (default: {DEFAULT_SOURCE})')
     parser.add_argument('--start', dest='start_date', default=DEFAULT_START_DATE,
                         help=f'Start date YYYY-MM-DD (default: {DEFAULT_START_DATE})')
     parser.add_argument('--end', dest='end_date', default=DEFAULT_END_DATE,
@@ -72,6 +62,14 @@ Examples:
     parser.add_argument('--scaling', default=DEFAULT_SCALING,
                         choices=['abs', 'atr', 'cla', 'log'],
                         help=f'Scaling method (default: {DEFAULT_SCALING})')
+    
+    # CCXT-specific arguments
+    parser.add_argument('--exchange', default=DEFAULT_EXCHANGE,
+                        help=f'CCXT exchange name (default: {DEFAULT_EXCHANGE}). Use with --source ccxt')
+    parser.add_argument('--timeframe', default=DEFAULT_TIMEFRAME,
+                        help=f'Candle timeframe for CCXT (default: {DEFAULT_TIMEFRAME}). Options: 1m, 5m, 15m, 1h, 4h, 1d, 1w')
+    
+    # Output options
     parser.add_argument('--save', action='store_true',
                         help='Save chart to HTML file')
     parser.add_argument('--show', action='store_true',
@@ -91,64 +89,84 @@ def main():
     # Parse command line arguments
     args = parse_arguments()
     
-    # Load data
-    ts = load_yfinance_data(args.symbol.upper(), args.start_date, args.end_date)
-    
-    print(f"Loaded {len(ts['Date'])} records")
-    print(f"Date range: {ts['Date'][0]} to {ts['Date'][-1]}\n")
-    
-    # Create Point & Figure Chart
-    pnf = PointFigureChart(
-        ts=ts,
-        method=args.method,
-        reversal=args.reversal,
-        boxsize=args.boxsize,
-        scaling=args.scaling,
-        title=args.symbol.upper()
-    )
-    
-    # Set max columns for console display
-    pnf.max_columns = args.columns
-    
-    # Print the chart in console
-    print(pnf)
-    
-    # Get trendlines and print (unless disabled)
-    if not args.no_trendlines:
-        pnf.get_trendlines()
-        print('\n' + '='*80)
-        print('CHART WITH TRENDLINES')
-        print('='*80)
+    try:
+        # Load data from appropriate source
+        if args.source.lower() == 'ccxt':
+            ts = load_ccxt_data(
+                exchange_name=args.exchange,
+                pair=args.symbol,
+                start_date=args.start_date,
+                end_date=args.end_date,
+                timeframe=args.timeframe
+            )
+        else:
+            # Default to yfinance
+            ts = load_yfinance_data(
+                symbol=args.symbol.upper(),
+                start_date=args.start_date,
+                end_date=args.end_date
+            )
+        
+        
+        # Create Point & Figure Chart
+        pnf = PointFigureChart(
+            ts=ts,
+            method=args.method,
+            reversal=args.reversal,
+            boxsize=args.boxsize,
+            scaling=args.scaling,
+            title=args.symbol.upper()
+        )
+        
+        # Set max columns for console display
+        pnf.max_columns = args.columns
+        
+        # Print the chart in console
         print(pnf)
-    
-    # Get breakouts and print (unless disabled)
-    if not args.no_breakouts:
-        pnf.get_breakouts()
-        print('\n' + '='*80)
-        print('CHART WITH TRENDLINES + BREAKOUTS')
-        print('='*80)
-        print(pnf)
-    
-    # Get all signals/patterns (unless disabled)
-    if not args.no_signals:
-        try:
-            pnf.get_signals()
+        
+        # Get trendlines and print (unless disabled)
+        if not args.no_trendlines:
+            pnf.get_trendlines()
             print('\n' + '='*80)
-            print('CHART WITH ALL PATTERNS')
+            print('CHART WITH TRENDLINES')
             print('='*80)
             print(pnf)
-        except Exception as e:
-            print(f"\nNote: Signals calculation encountered an issue: {e}")
+        
+        # Get breakouts and print (unless disabled)
+        if not args.no_breakouts:
+            pnf.get_breakouts()
+            print('\n' + '='*80)
+            print('CHART WITH TRENDLINES + BREAKOUTS')
+            print('='*80)
+            print(pnf)
+        
+        # Get all signals/patterns (unless disabled)
+        if not args.no_signals:
+            try:
+                pnf.get_signals()
+                print('\n' + '='*80)
+                print('CHART WITH ALL PATTERNS')
+                print('='*80)
+                print(pnf)
+            except Exception as e:
+                print(f"\nNote: Signals calculation encountered an issue: {e}")
+        
+        # Save to HTML if requested
+        if args.save:
+            filename = f'{args.symbol.replace("/", "_").upper()}_pnf_chart.html'
+            pnf.write_html(filename)
+            print(f"\nChart saved to {filename}")
+        
+        # Show plot if requested
+        if args.show:
+            pnf.show()
     
-    # Save to HTML if requested
-    if args.save:
-        filename = f'{args.symbol.upper()}_pnf_chart.html'
-        pnf.write_html(filename)
-        print(f"\nChart saved to {filename}")
-    
-    # Show plot if requested
-    if args.show:
-        pnf.show()
+    except KeyboardInterrupt:
+        print("\nInterrupted by user")
+    except Exception as e:
+        print(f"\nError: {str(e)}")
+        import traceback
+        traceback.print_exc()
 
 if __name__ == '__main__':
     main()

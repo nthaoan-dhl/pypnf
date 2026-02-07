@@ -2,13 +2,25 @@
 
 ## Giới thiệu
 
-Script `pnfchart.py` cho phép bạn tạo biểu đồ Point & Figure từ dữ liệu cổ phiếu trên Yahoo Finance với nhiều tùy chọn linh hoạt thông qua command line.
+Script `pnfchart.py` cho phép bạn tạo biểu đồ Point & Figure từ dữ liệu cổ phiếu (Yahoo Finance) hoặc tiền điện tử/crypto (CCXT exchanges) với nhiều tùy chọn linh hoạt thông qua command line.
+
+**Tính năng chính:**
+- Phân tích dữ liệu cổ phiếu từ Yahoo Finance
+- Phân tích dữ liệu crypto từ 100+ sàn giao dịch (Binance, Kraken, Coinbase, ...)
+- Động tính phép vị tẤp Point & Figure với nhiều tùy chọn scaling
+- Hiển thị trendlines, breakouts, và các mô hình giá
 
 ## Cài đặt
 
 ```bash
-pip install pypnf yfinance pandas
+pip install pypnf ccxt yfinance pandas
 ```
+
+**Các gói đàu tiên:**
+- `pypnf`: Thư viện Point & Figure
+- `ccxt`: Hỗ trợ 100+ sàn giao dịch crypto
+- `yfinance`: Lấy dữ liệu cổ phiếu Yahoo Finance
+- `pandas`: Xử lý dữ liệu
 
 ## Cách Sử Dụng Cơ Bản
 
@@ -40,17 +52,20 @@ python pnfchart.py --help
 
 | Tham số | Mô tả | Mặc định |
 |---------|-------|----------|
-| `symbol` | Mã cổ phiếu (ticker symbol) | AMD |
+| `symbol` | Stock/Crypto symbol (ví dụ: AMD, BTC/USDT) | AMD |
 
 ### Các tùy chọn (Options)
 
 | Tham số | Mô tả | Giá trị | Mặc định |
 |---------|-------|---------|----------|
+| `--source` | Nguồn dữ liệu | yfinance, ccxt | yfinance |
 | `--start` | Ngày bắt đầu | YYYY-MM-DD | 2010-01-01 |
 | `--end` | Ngày kết thúc | YYYY-MM-DD | Hôm nay (today) |
+| `--exchange` | Sàn giao dịch CCXT | binance, kraken, coinbase, ... | binance |
+| `--timeframe` | Khung thời gian (CCXT) | 1m, 5m, 15m, 1h, 4h, 1d, 1w | 1d |
 | `--method` | Phương pháp vẽ chart | cl, h/l, l/h, hlc, ohlc | h/l |
 | `--reversal` | Số box để đảo chiều | Số nguyên | 3 |
-| `--boxsize` | Kích thước box | Số thực | 2 |
+| `--boxsize` | Kích thước box | Số thực | 1 |
 | `--scaling` | Phương pháp scaling | abs, atr, cla, log | cla |
 | `--save` | Lưu chart vào file HTML | Flag | False |
 | `--show` | Hiển thị chart với matplotlib | Flag | False |
@@ -77,7 +92,46 @@ Số lượng box tối thiểu cần thiết để chart đảo chiều xu hư�
 - `3`: Cân bằng (mặc định)
 - `4+`: Đảo chiều chậm, lọc nhiễu tốt hơn
 
-### SCALING (Tỷ lệ)
+### SOURCE (Nguồn dữ liệu)
+
+#### 1. **yfinance** - Stock Data (Mặc định)
+
+Lấy dữ liệu cổ phiếu từ Yahoo Finance.
+
+```bash
+# Cố phiếu US
+python pnfchart.py AAPL --source yfinance
+python pnfchart.py MSFT --source yfinance
+python pnfchart.py TSLA --source yfinance
+
+# Cố phiếu quốc tế
+python pnfchart.py 0700.HK --source yfinance  # Alibaba
+python pnfchart.py ^HSI --source yfinance     # Hang Seng Index
+python pnfchart.py ^GSPC --source yfinance    # S&P 500
+```
+
+#### 2. **ccxt** - Cryptocurrency Data
+
+Lấy dữ liệu crypto từ nhiều sàn giao dịch. Ở đây:
+- Pair: Dùng định dạng `BTC/USDT`, `ETH/USD`, vàv...
+- Exchange: binance, kraken, coinbase, huobi, bybit, vàv...
+- Timeframe: 1m, 5m, 15m, 1h, 4h, 1d, 1w
+
+```bash
+# Bitcoin từ Binance
+python pnfchart.py BTC/USDT --source ccxt --exchange binance
+
+# Ethereum từ Kraken
+python pnfchart.py ETH/USD --source ccxt --exchange kraken
+
+# Các timeframe khác nhau
+python pnfchart.py BTC/USDT --source ccxt --exchange binance --timeframe 1h
+python pnfchart.py BTC/USDT --source ccxt --exchange binance --timeframe 4h
+python pnfchart.py BTC/USDT --source ccxt --exchange binance --timeframe 1w
+
+# Với kồng thời gian cụ thể
+python pnfchart.py BTC/USDT --source ccxt --exchange binance --start 2025-08-01 --end 2025-12-31
+```
 
 #### 1. **abs** - Absolute (Tuyệt đối)
 ```bash
