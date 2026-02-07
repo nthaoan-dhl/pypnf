@@ -158,11 +158,17 @@ python pnfchart.py XAUUSD --source ctrader --ctrader-csv /path/to/xauusd.csv --t
 python pnfchart.py EURUSD --source ctrader --timeframe m15
 ```
 
-**⚠️ Lưu ý:** Hiện tại cTrader sử dụng test data generator để phát triển. Để kết nối live cTrader OpenAPI, xem "cTrader Open API Setup" bên dưới.
+**⚠️ Lưu ý:** Provider sẽ tự fallback sang test data nếu thiếu credentials hoặc chưa compile proto. Để lấy live data, xem "cTrader Open API Setup" bên dưới.
 
 #### cTrader Open API Setup (gRPC)
 
 cTrader OpenAPI sử dụng gRPC + Protocol Buffers để truyền dữ liệu. Để integrate live data:
+
+**Step 0:** Cài dotenv (để đọc `.env` tự động)
+
+```bash
+pip install python-dotenv
+```
 
 **Step 1:** Download cTrader .proto files
 
@@ -172,36 +178,29 @@ git clone https://github.com/spotware/openapi-proto-messages.git
 cd openapi-proto-messages
 ```
 
-**Step 2:** Compile proto files to Python
+**Step 2:** Compile proto files to Python stubs
 
 ```bash
 pip install grpcio grpcio-tools protobuf
 
-python -m grpcio_tools.protoc \
+python -m grpc_tools.protoc \
   -I. --python_out=. --grpc_python_out=. \
-  open-api.proto
+  OpenApiMessages.proto \
+  OpenApiModelMessages.proto \
+  OpenApiCommonMessages.proto \
+  OpenApiCommonModelMessages.proto
 ```
 
-**Step 3:** Update `ctrader_provider.py` với compiled stubs
+**Step 3:** Provider tự nhận stubs (không cần sửa code)
 
-```python
-# Sau khi compile, file này sẽ được sinh:
-# - open_api_pb2.py (message definitions)
-# - open_api_pb2_grpc.py (service stubs)
+Sau khi compile, thư mục `openapi-proto-messages/` sẽ có các file như:
 
-import grpc
-import open_api_pb2
-import open_api_pb2_grpc
+- `OpenApiMessages_pb2.py`
+- `OpenApiMessages_pb2_grpc.py`
+- `OpenApiModelMessages_pb2.py`
+- `OpenApiCommonMessages_pb2.py`
 
-# Implement fetch_ohlcv() sử dụng generated stubs
-def fetch_ohlcv(symbol, start_date, end_date, timeframe='h1'):
-    channel = grpc.aio.secure_channel(
-        f"{CTRADER_HOST}:{CTRADER_PORT}",
-        grpc.ssl_channel_credentials()
-    )
-    stub = open_api_pb2_grpc.ProtoOAStub(channel)
-    # ... thực hiện request
-```
+`ctrader_provider.py` sẽ tự thêm thư mục này vào `sys.path` và bật gRPC mode.
 
 **Step 4:** Set cTrader credentials trong `.env`
 
