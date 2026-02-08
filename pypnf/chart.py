@@ -5171,8 +5171,10 @@ class PointFigureChart:
             row = [s.replace('0', '.') for s in row]
             row = [s.replace('-1', 'O') for s in row]
             row = [s.replace('1', 'X') for s in row]
-            row = [s.replace('-2', '*') for s in row]
-            row = [s.replace('2', '*') for s in row]
+            # Bearish resistance = red +
+            row = [s.replace('-2', '\033[31m+\033[0m') for s in row]
+            # Bullish support = green +
+            row = [s.replace('2', '\033[32m+\033[0m') for s in row]
             row = np.hstack((boxes[m], row, boxes[m]))
 
             if n == 0:
