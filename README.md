@@ -160,6 +160,33 @@ Last trendline: bullish support line of length 10
 printed 11/11 columns.
 ```
 
+#### Vietnam market data (vnstock + DNSE snapshot)
+
+Install vnstock if needed:
+
+```python
+pip install vnstock
+```
+
+Use vnstock for historical data:
+
+```python
+python pnfchart.py FPT --source vnstock --start 2023-01-01 --end 2024-01-01
+```
+
+Use DNSE snapshot with optional vnstock history (default on):
+
+```python
+export DNSE_SNAPSHOT_URL="https://.../snapshot?symbol={symbol}"
+python pnfchart.py FPT --source dnse --timeframe 1m
+```
+
+Disable vnstock history when using DNSE:
+
+```python
+python pnfchart.py FPT --source dnse --dnse-no-history
+```
+
 **Chart Legend:**
 - `X` = Price move up
 - `O` = Price move down  

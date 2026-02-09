@@ -6,10 +6,11 @@ Data sources module - Support for Yahoo Finance, CCXT, and cTrader
 
 import os
 import importlib
+from datetime import datetime, timedelta
+
 import yfinance as yf
 import ccxt
 import pandas as pd
-from datetime import datetime, timedelta
 
 
 def load_yfinance_data(symbol, start_date, end_date):
@@ -32,6 +33,65 @@ def load_yfinance_data(symbol, start_date, end_date):
     ts = ts.to_dict('list')
     
     return ts
+
+
+def _normalize_ohlc_dataframe(df):
+    """Normalize a pandas DataFrame to Date/Open/High/Low/Close dict."""
+    if df is None or df.empty:
+        raise ValueError("No data returned")
+
+    columns = {col.lower(): col for col in df.columns}
+    date_col = None
+    for candidate in ['date', 'time', 'datetime', 'tradingdate']:
+        if candidate in columns:
+            date_col = columns[candidate]
+            break
+
+    if date_col is None:
+        if df.index.name and df.index.name.lower() in ['date', 'time', 'datetime']:
+            df = df.reset_index()
+            date_col = df.columns[0]
+        else:
+            raise ValueError("Unable to find a date column in vnstock data")
+
+    o_col = columns.get('open')
+    h_col = columns.get('high')
+    l_col = columns.get('low')
+    c_col = columns.get('close')
+
+    if not all([o_col, h_col, l_col, c_col]):
+        raise ValueError("vnstock data missing OHLC columns")
+
+    df = df[[date_col, o_col, h_col, l_col, c_col]].copy()
+    df[date_col] = pd.to_datetime(df[date_col]).dt.strftime('%Y-%m-%d')
+
+    return {
+        'Date': df[date_col].tolist(),
+        'Open': df[o_col].tolist(),
+        'High': df[h_col].tolist(),
+        'Low': df[l_col].tolist(),
+        'Close': df[c_col].tolist(),
+    }
+
+
+def load_vnstock_data(symbol, start_date, end_date, interval='1D'):
+    """Download Vietnam stock data via vnstock (historical)."""
+    try:
+        from vnstock import stock_historical_data
+    except ImportError as e:
+        raise ValueError(
+            "vnstock is not installed. Install with: pip install vnstock"
+        ) from e
+
+    df = stock_historical_data(
+        symbol=symbol,
+        start_date=start_date,
+        end_date=end_date,
+        resolution=interval,
+        type='stock'
+    )
+
+    return _normalize_ohlc_dataframe(df)
 
 
 def load_ccxt_data(exchange_name, pair, start_date, end_date, timeframe='1d'):
@@ -258,6 +318,50 @@ def load_ctrader_data(symbol, start_date, end_date, timeframe='d1', provider_mod
     print(f"Loaded {len(dates)} candles")
 
     return result
+
+
+def load_dnse_data(symbol, start_date, end_date, timeframe='1m', provider_module=None, include_history=True):
+    """
+    Download market data from DNSE via a provider module.
+
+    Provider module must expose:
+        fetch_snapshot(symbol, timeframe=None, **kwargs) -> dict
+
+    If include_history is True, vnstock is used to fetch historical OHLCV
+    and the DNSE snapshot is appended when available.
+    """
+
+    module_name = provider_module or os.getenv('DNSE_PROVIDER', 'dnse_provider')
+    try:
+        provider = importlib.import_module(module_name)
+    except Exception as e:
+        raise ValueError(f"Failed to load DNSE provider '{module_name}': {str(e)}")
+
+    if not hasattr(provider, 'fetch_snapshot'):
+        raise ValueError(f"Provider '{module_name}' must define fetch_snapshot()")
+
+    history = None
+    if include_history:
+        history = load_vnstock_data(symbol, start_date, end_date, interval='1D')
+
+    snapshot = provider.fetch_snapshot(symbol=symbol, timeframe=timeframe)
+    if not snapshot:
+        return history if history is not None else snapshot
+
+    if history is None:
+        return snapshot
+
+    # Append snapshot if it is newer than the last history point.
+    try:
+        last_date = history['Date'][-1]
+        snap_date = snapshot['Date'][-1]
+        if snap_date > last_date:
+            for key in ['Date', 'Open', 'High', 'Low', 'Close']:
+                history[key].extend(snapshot[key])
+    except Exception:
+        return history
+
+    return history
 
 
 def get_available_exchanges():

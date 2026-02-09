@@ -11,7 +11,13 @@ Example: python pnfchart.py AMD
 import argparse
 from pypnf import PointFigureChart
 from datetime import date
-from data_sources import load_yfinance_data, load_ccxt_data, load_ctrader_data
+from data_sources import (
+    load_yfinance_data,
+    load_ccxt_data,
+    load_ctrader_data,
+    load_dnse_data,
+    load_vnstock_data,
+)
 
 # Default Configuration
 DEFAULT_SYMBOL = 'AMD'
@@ -21,7 +27,7 @@ DEFAULT_METHOD = 'h/l'           # 'cl', 'h/l', 'l/h', 'hlc', 'ohlc'
 DEFAULT_REVERSAL = 3            # number of boxes for reversal
 DEFAULT_BOXSIZE = 1             # percentage value for 'cla' scaling
 DEFAULT_SCALING = 'cla'         # 'abs', 'atr', 'cla', 'log'
-DEFAULT_SOURCE = 'yfinance'     # 'yfinance', 'ccxt', 'ctrader'
+DEFAULT_SOURCE = 'yfinance'     # 'yfinance', 'ccxt', 'ctrader', 'vnstock', 'dnse'
 DEFAULT_EXCHANGE = 'binance'    # CCXT exchange name
 DEFAULT_TIMEFRAME = '1d'        # Candle timeframe (CCXT/ctrader)
 DEFAULT_CTRADER_PROVIDER = 'ctrader_provider'
@@ -52,7 +58,7 @@ Examples:
     parser.add_argument('symbol', nargs='?', default=DEFAULT_SYMBOL,
                         help=f'Stock/Crypto symbol (default: {DEFAULT_SYMBOL}). For crypto: use BTC/USDT format')
     parser.add_argument('--source', default=DEFAULT_SOURCE,
-                        choices=['yfinance', 'ccxt', 'ctrader'],
+                        choices=['yfinance', 'ccxt', 'ctrader', 'vnstock', 'dnse'],
                         help=f'Data source (default: {DEFAULT_SOURCE})')
     parser.add_argument('--start', dest='start_date', default=DEFAULT_START_DATE,
                         help=f'Start date YYYY-MM-DD (default: {DEFAULT_START_DATE})')
@@ -80,6 +86,14 @@ Examples:
                         help=f'cTrader provider module (default: {DEFAULT_CTRADER_PROVIDER})')
     parser.add_argument('--ctrader-csv', default=None,
                         help='CSV path for cTrader provider (optional, uses CTRADER_CSV_PATH if set)')
+
+    # DNSE/VNStock-specific arguments
+    parser.add_argument('--dnse-provider', default='dnse_provider',
+                        help='DNSE provider module (default: dnse_provider)')
+    parser.add_argument('--dnse-no-history', action='store_true',
+                        help='Skip vnstock historical data when using DNSE')
+    parser.add_argument('--vnstock-interval', default='1D',
+                        help='VNStock historical interval (default: 1D)')
     
     # Output options
     parser.add_argument('--save', action='store_true',
@@ -119,6 +133,22 @@ def main():
                 timeframe=args.timeframe,
                 provider_module=args.ctrader_provider,
                 csv_path=args.ctrader_csv
+            )
+        elif args.source.lower() == 'vnstock':
+            ts = load_vnstock_data(
+                symbol=args.symbol.upper(),
+                start_date=args.start_date,
+                end_date=args.end_date,
+                interval=args.vnstock_interval
+            )
+        elif args.source.lower() == 'dnse':
+            ts = load_dnse_data(
+                symbol=args.symbol.upper(),
+                start_date=args.start_date,
+                end_date=args.end_date,
+                timeframe=args.timeframe,
+                provider_module=args.dnse_provider,
+                include_history=not args.dnse_no_history
             )
         else:
             # Default to yfinance
