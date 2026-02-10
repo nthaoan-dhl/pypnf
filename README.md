@@ -160,7 +160,36 @@ Last trendline: bullish support line of length 10
 printed 11/11 columns.
 ```
 
+#### Cryptocurrency data (CCXT)
+
+📖 **[CCXT Quick Start Guide](CCXT_QUICK_START.md)** - Hướng dẫn đầy đủ về sử dụng CCXT với 111+ exchanges
+
+Fetch cryptocurrency data from 111+ exchanges (Binance, Coinbase, Kraken, etc.):
+
+```bash
+# BTC/USDT from Binance
+python pnfchart.py BTC/USDT --source ccxt --exchange binance --timeframe 4h
+
+# ETH/USD from Coinbase  
+python pnfchart.py ETH/USD --source ccxt --exchange coinbase
+
+# With date range
+python pnfchart.py SOL/USDT --source ccxt --exchange binance \
+    --start 2024-01-01 --end 2024-12-31
+```
+
+**Improvements (following CCXT best practices):**
+- ✅ Automatic rate limiting
+- ✅ Market validation before fetch
+- ✅ Retry logic for network errors
+- ✅ Proper error hierarchy handling
+- ✅ Helpful error messages
+
+See `example_ccxt_usage.py` for sync/async examples.
+
 #### Vietnam market data (vnstock + DNSE snapshot)
+
+📖 **[DNSE Quick Start Guide](DNSE_QUICK_START.md)** - Hướng dẫn đầy đủ về cấu hình và sử dụng DNSE
 
 Install vnstock if needed:
 

@@ -24,5 +24,49 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from .chart import PointFigureChart
-from .testdata import dataset
+"""
+pyPnF - Python Point & Figure Charting Library
+
+A comprehensive library for creating Point & Figure charts with support
+for multiple data sources including stocks, cryptocurrencies, and forex.
+
+Architecture:
+- core: Point & Figure calculation engine  
+- adapters: Data source adapters (yfinance, ccxt, ctrader, vnstock, dnse)
+- app: CLI application
+
+Examples:
+    >>> from pypnf import PointFigureChart
+    >>> from pypnf.adapters import load_yfinance_data
+    >>> 
+    >>> data = load_yfinance_data('AAPL', '2024-01-01', '2024-12-31')
+    >>> pnf = PointFigureChart(data, method='h/l', reversal=3)
+    >>> print(pnf)
+"""
+
+# Core exports
+from pypnf.core import PointFigureChart, dataset
+
+# Adapter exports (for convenience)
+from pypnf.adapters import (
+    load_yfinance_data,
+    load_ccxt_data,
+    load_ctrader_data,
+    load_vnstock_data,
+    load_dnse_data,
+)
+
+__version__ = "1.0.0"
+__author__ = "pypnf contributors"
+
+__all__ = [
+    # Core
+    'PointFigureChart',
+    'dataset',
+    # Adapters
+    'load_yfinance_data',
+    'load_ccxt_data',
+    'load_ctrader_data',
+    'load_vnstock_data',
+    'load_dnse_data',
+]
