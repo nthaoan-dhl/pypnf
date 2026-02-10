@@ -16,5 +16,5 @@ Examples:
 """
 
 if __name__ == '__main__':
-    from pypnf.app.cli import main
+    from pnfchart.app.cli import main
     main()

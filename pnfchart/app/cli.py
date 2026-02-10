@@ -10,8 +10,8 @@ Example: python -m pypnf.app.cli AMD
 
 import argparse
 from datetime import date
-from pypnf.core import PointFigureChart
-from pypnf.adapters import (
+from pnfchart.core import PointFigureChart
+from pnfchart.adapters import (
     load_yfinance_data,
     load_ccxt_data,
     load_ctrader_data,

@@ -5,7 +5,7 @@ Gap Filling Behavior Test
 Demonstrates how PnF charts handle price gaps
 """
 
-from pypnf import PointFigureChart
+from pnfchart import PointFigureChart
 
 # Test data with significant price gaps
 ts = {

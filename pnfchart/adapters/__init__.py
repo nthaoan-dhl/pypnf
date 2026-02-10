@@ -9,14 +9,14 @@ This package contains adapters for various data sources:
 - dnse: DNSE Lightspeed
 """
 
-from pypnf.adapters import yfinance, ccxt, ctrader, vnstock, dnse
+from pnfchart.adapters import yfinance, ccxt, ctrader, vnstock, dnse
 
 # Re-export main loading functions with source prefix
-from pypnf.adapters.yfinance import load_data as load_yfinance_data
-from pypnf.adapters.ccxt import load_ccxt_data, get_available_exchanges, get_exchange_symbols, get_exchange_timeframes
-from pypnf.adapters.ctrader import load_ctrader_data
-from pypnf.adapters.vnstock import load_data as load_vnstock_data
-from pypnf.adapters.dnse import load_dnse_data
+from pnfchart.adapters.yfinance import load_data as load_yfinance_data
+from pnfchart.adapters.ccxt import load_ccxt_data, get_available_exchanges, get_exchange_symbols, get_exchange_timeframes
+from pnfchart.adapters.ctrader import load_ctrader_data
+from pnfchart.adapters.vnstock import load_data as load_vnstock_data
+from pnfchart.adapters.dnse import load_dnse_data
 
 __all__ = [
     # Modules

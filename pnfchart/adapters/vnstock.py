@@ -6,7 +6,7 @@ VNStock Data Adapter
 Provides data loading from Vietnam stock market via vnstock library.
 """
 
-from pypnf.adapters.base import normalize_ohlc_dataframe
+from pnfchart.adapters.base import normalize_ohlc_dataframe
 
 
 def load_data(symbol, start_date, end_date, interval='1D'):

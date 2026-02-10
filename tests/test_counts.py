@@ -1,5 +1,5 @@
-from pypnf import PointFigureChart
-from pypnf import dataset
+from pnfchart import PointFigureChart
+from pnfchart import dataset
 
 def test_counts_abs():
     symbol = 'AAPL'  # or 'MSFT'

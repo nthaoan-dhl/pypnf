@@ -1,4 +1,4 @@
-from pypnf import PointFigureChart
+from pnfchart import PointFigureChart
 import os
 # if SHOW_CHART var is in env set show_chart to True
 if "SHOW_CHART" in os.environ:

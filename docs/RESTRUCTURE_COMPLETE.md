@@ -81,17 +81,17 @@ pypnf/
 
 ### Cách 1: Import từ core
 ```python
-from pypnf.core import PointFigureChart, dataset
+from pnfchart.core import PointFigureChart, dataset
 ```
 
 ### Cách 2: Import từ main package (recommended)
 ```python
-from pypnf import PointFigureChart, dataset
+from pnfchart import PointFigureChart, dataset
 ```
 
 ### Cách 3: Import adapters
 ```python
-from pypnf.adapters import (
+from pnfchart.adapters import (
     load_yfinance_data,
     load_ccxt_data,
     load_ctrader_data,
@@ -102,7 +102,7 @@ from pypnf.adapters import (
 
 ### Cách 4: Import specific adapter
 ```python
-from pypnf.adapters.ccxt import load_data, get_available_exchanges
+from pnfchart.adapters.ccxt import load_data, get_available_exchanges
 ```
 
 ## 🚀 Usage
@@ -118,8 +118,8 @@ python -m pypnf.app.cli BTC/USDT --source ccxt --exchange binance
 
 ### Python API
 ```python
-from pypnf import PointFigureChart
-from pypnf.adapters import load_ccxt_data
+from pnfchart import PointFigureChart
+from pnfchart.adapters import load_ccxt_data
 
 # Load data
 data = load_ccxt_data('binance', 'BTC/USDT', '2024-01-01', '2024-12-31', '1d')
@@ -156,8 +156,8 @@ print(pnf)
 
 ### 4. **Clean imports**
 - No more `from data_sources import load_ccxt_data`
-- Clean: `from pypnf.adapters.ccxt import load_data`
-- Or: `from pypnf.adapters import load_ccxt_data`
+- Clean: `from pnfchart.adapters.ccxt import load_data`
+- Or: `from pnfchart.adapters import load_ccxt_data`
 
 ### 5. **Professional structure**
 - Follows Python package best practices
@@ -168,7 +168,7 @@ print(pnf)
 
 ### Old code:
 ```python
-from pypnf import PointFigureChart
+from pnfchart import PointFigureChart
 from data_sources import load_ccxt_data
 
 data = load_ccxt_data('binance', 'BTC/USDT', '2024-01-01', '2024-12-31')
@@ -177,8 +177,8 @@ pnf = PointFigureChart(data, method='h/l', reversal=3)
 
 ### New code (Option 1 - Minimal changes):
 ```python
-from pypnf import PointFigureChart
-from pypnf.adapters import load_ccxt_data  # Just change import!
+from pnfchart import PointFigureChart
+from pnfchart.adapters import load_ccxt_data  # Just change import!
 
 data = load_ccxt_data('binance', 'BTC/USDT', '2024-01-01', '2024-12-31')
 pnf = PointFigureChart(data, method='h/l', reversal=3)
@@ -186,8 +186,8 @@ pnf = PointFigureChart(data, method='h/l', reversal=3)
 
 ### New code (Option 2 - More explicit):
 ```python
-from pypnf.core import PointFigureChart
-from pypnf.adapters.ccxt import load_data
+from pnfchart.core import PointFigureChart
+from pnfchart.adapters.ccxt import load_data
 
 data = load_data('binance', 'BTC/USDT', '2024-01-01', '2024-12-31')
 pnf = PointFigureChart(data, method='h/l', reversal=3)
@@ -207,7 +207,7 @@ All tests pass with new structure:
 ## 🔄 Backward Compatibility
 
 - ✅ `pnfchart.py` still works (wrapper to new cli)
-- ✅ `from pypnf import PointFigureChart` still works
+- ✅ `from pnfchart import PointFigureChart` still works
 - ⚠️ `from data_sources import *` deprecated but still exists
 - ✅ All old scripts continue to work
 

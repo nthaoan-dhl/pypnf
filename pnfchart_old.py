@@ -9,7 +9,7 @@ Example: python pnfchart.py AMD
 """
 
 import argparse
-from pypnf import PointFigureChart
+from pnfchart import PointFigureChart
 from datetime import date
 from providers.data_sources import (
     load_yfinance_data,

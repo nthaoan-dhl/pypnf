@@ -3,7 +3,7 @@ import csv
 import os
 import time
 from datetime import datetime, timedelta
-from pypnf import PointFigureChart
+from pnfchart import PointFigureChart
 
 class PolygonDataManager:
     def __init__(self, data_dir='market_data'):

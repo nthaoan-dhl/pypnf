@@ -328,7 +328,7 @@ python pnfchart.py ETH/USDT \
 ### Python API:
 ```python
 from data_sources import load_ccxt_data
-from pypnf import PointFigureChart
+from pnfchart import PointFigureChart
 
 data = load_ccxt_data('binance', 'BTC/USDT', '2024-01-01', '2024-06-30', '1d')
 pnf = PointFigureChart(ts=data, method='hl', reversal=3)

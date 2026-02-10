@@ -9,7 +9,7 @@ Can be combined with vnstock historical data.
 
 import os
 import importlib
-from pypnf.adapters.vnstock import load_data as load_vnstock_data
+from pnfchart.adapters.vnstock import load_data as load_vnstock_data
 
 
 def load_dnse_data(symbol, start_date, end_date, timeframe='1m', provider_module=None, include_history=True):

@@ -63,7 +63,7 @@ python pnfchart.py BTC/USD --source ccxt --exchange coinbase
 
 ```python
 from data_sources import load_ccxt_data
-from pypnf import PointFigureChart
+from pnfchart import PointFigureChart
 
 # Load 30 days of BTC data
 data = load_ccxt_data(

@@ -23,8 +23,8 @@ pip install pypnf
 
 
 ```python
-from pypnf import PointFigureChart
-from pypnf import dataset
+from pnfchart import PointFigureChart
+from pnfchart import dataset
 
 symbol = 'AAPL'  # or 'MSFT'
 
@@ -61,8 +61,8 @@ printed 7/7 columns.
 ##### Plotting Point&Figure Charts
 
 ```python
-from pypnf import PointFigureChart
-from pypnf import dataset
+from pnfchart import PointFigureChart
+from pnfchart import dataset
 
 data = dataset('^SPX')
 
@@ -112,7 +112,7 @@ Initiate the PointFigureChart object with the prepared data and chart parameter,
 get the trendlines and print the resulting Point and Figure Chart.
 
 ```python
-from pypnf import PointFigureChart
+from pnfchart import PointFigureChart
 
 pnf = PointFigureChart(ts=ts, method='cl', reversal=3, boxsize=2, scaling='abs', title='AAPL')
 pnf.get_trendlines()

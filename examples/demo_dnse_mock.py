@@ -143,7 +143,7 @@ print("Test 4: Creating complete P&F chart with mock data")
 print("=" * 70)
 
 try:
-    from pypnf import PointFigureChart
+    from pnfchart import PointFigureChart
     
     # Get mock data
     ts = load_dnse_data(
